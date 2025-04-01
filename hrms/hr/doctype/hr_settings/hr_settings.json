@@ -59,14 +59,20 @@
   "column_break_zguo",
   "hr_manager_name",
   "separation_clearance_approver_section",
-  "afd",
-  "ama",
-  "icthr",
-  "internal_audit",
-  "ada",
-  "pc",
-  "sws",
-  "column_break_wguy"
+  "accounts_finance",
+  "procurement",
+  "general_manager",
+  "column_break_wguy",
+  "accounts_finance_name",
+  "procurement_name",
+  "general_manager_name",
+  "notification_setting_tab",
+  "enote_section",
+  "enote_approval_notification",
+  "enote_copyto_notification",
+  "column_break_wcru",
+  "enote_status_notification",
+  "enote_reviewer_notification"
  ],
  "fields": [
   {
@@ -389,53 +395,85 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "afd",
+   "fieldname": "notification_setting_tab",
+   "fieldtype": "Tab Break",
+   "label": "Notification Setting"
+  },
+  {
+   "fieldname": "enote_section",
+   "fieldtype": "Section Break",
+   "label": "Enote"
+  },
+  {
+   "fieldname": "enote_approval_notification",
+   "fieldtype": "Link",
+   "label": "eNote Approval Notification",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "enote_copyto_notification",
+   "fieldtype": "Link",
+   "label": "eNote CopyTo Notification",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "column_break_wcru",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "enote_status_notification",
+   "fieldtype": "Link",
+   "label": "eNote Status Notification",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "enote_reviewer_notification",
+   "fieldtype": "Link",
+   "label": "eNote Reviewer Notification",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "accounts_finance",
    "fieldtype": "Link",
    "label": "Accounts & Finance",
    "options": "Employee"
   },
   {
-   "fieldname": "ama",
+   "fieldname": "procurement",
    "fieldtype": "Link",
-   "label": "Asset Management",
+   "label": "Procurement & Human Resource",
    "options": "Employee"
   },
   {
-   "fieldname": "icthr",
+   "fetch_from": "accounts_finance.employee_name",
+   "fieldname": "accounts_finance_name",
+   "fieldtype": "Data",
+   "label": "Accounts & Finance"
+  },
+  {
+   "fetch_from": "procurement.employee_name",
+   "fieldname": "procurement_name",
+   "fieldtype": "Data",
+   "label": "Procurement & Human Resource"
+  },
+  {
+   "fieldname": "general_manager",
    "fieldtype": "Link",
-   "label": "Human Resource & Administration",
+   "label": "General Manager",
    "options": "Employee"
   },
   {
-   "fieldname": "internal_audit",
-   "fieldtype": "Link",
-   "label": "Internal Audit",
-   "options": "Employee"
-  },
-  {
-   "fieldname": "ada",
-   "fieldtype": "Link",
-   "label": "Asset Declaration Administrator",
-   "options": "Employee"
-  },
-  {
-   "fieldname": "pc",
-   "fieldtype": "Link",
-   "label": "Procurement and Contracts",
-   "options": "Employee"
-  },
-  {
-   "fieldname": "sws",
-   "fieldtype": "Link",
-   "label": "SWS Treasurer",
-   "options": "Employee"
+   "fetch_from": "general_manager.employee_name",
+   "fieldname": "general_manager_name",
+   "fieldtype": "Data",
+   "label": "General Manager Name"
   }
  ],
  "icon": "fa fa-cog",
  "idx": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-03-18 12:58:52.060684",
+ "modified": "2025-04-01 11:50:52.693204",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "HR Settings",
