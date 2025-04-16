@@ -5,5 +5,5 @@ def get_data():
 			"Payment Entry": "reference_name",
 			"Journal Entry": "reference_name",
 		},
-		"transactions": [{"items": ["Travel Claim", "Travel Advance", "Travel Adjustment"]}, {"items": ["Payment Entry", "Journal Entry"]}],
+		"transactions": [{"items": ["Travel Claim", "Travel Advance", "Travel Adjustment"]}, {"items": ["Journal Entry"]}],
 	}

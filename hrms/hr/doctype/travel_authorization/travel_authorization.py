@@ -32,7 +32,7 @@ class TravelAuthorization(Document):
 		self.validate_travel_last_day()
 		self.validate_exchange_rate()
 		self.set_status()
-		# validate_workflow_states(self)
+		validate_workflow_states(self)
 
 	def on_update(self):
 		self.check_date_overlap()

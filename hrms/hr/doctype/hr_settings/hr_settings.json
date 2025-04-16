@@ -59,13 +59,13 @@
   "column_break_zguo",
   "hr_manager_name",
   "separation_clearance_approver_section",
+  "general_manager",
   "accounts_finance",
   "procurement",
-  "general_manager",
   "column_break_wguy",
+  "general_manager_name",
   "accounts_finance_name",
   "procurement_name",
-  "general_manager_name",
   "notification_setting_tab",
   "enote_section",
   "enote_approval_notification",
@@ -448,13 +448,15 @@
    "fetch_from": "accounts_finance.employee_name",
    "fieldname": "accounts_finance_name",
    "fieldtype": "Data",
-   "label": "Accounts & Finance"
+   "label": "Accounts & Finance",
+   "read_only": 1
   },
   {
    "fetch_from": "procurement.employee_name",
    "fieldname": "procurement_name",
    "fieldtype": "Data",
-   "label": "Procurement & Human Resource"
+   "label": "Procurement & Human Resource",
+   "read_only": 1
   },
   {
    "fieldname": "general_manager",
@@ -466,14 +468,15 @@
    "fetch_from": "general_manager.employee_name",
    "fieldname": "general_manager_name",
    "fieldtype": "Data",
-   "label": "General Manager Name"
+   "label": "General Manager Name",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-cog",
  "idx": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-01 11:50:52.693204",
+ "modified": "2025-04-16 10:41:46.938772",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "HR Settings",
