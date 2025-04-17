@@ -153,7 +153,8 @@ class SalaryStructure(Document):
 				if ed_item.from_date and ed_item.to_date and str(ed_item.to_date) < str(ed_item.from_date):
 					frappe.throw(_("<b>Row#{}:</b> Invalid <b>From Date</b> for <b>{}</b> under <b>{}s</b>").format(ed_item.idx, ed_item.salary_component, tbl_list[ed]))
 
-				ed_item.amount = roundoff(ed_item.amount)
+				# ed_item.amount = roundoff(ed_item.amount)
+				ed_item.amount = flt(ed_item.amount)
 				amount = ed_item.amount
 
 				if ed_item.salary_component not in ed_map:
@@ -222,7 +223,8 @@ class SalaryStructure(Document):
 							# frappe.throw(str(calc_amt))
 							# calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 						
-						calc_amt = roundoff(calc_amt)
+						# calc_amt = roundoff(calc_amt)
+						calc_amt = flt(calc_amt)
 						comm_allowance += flt(calc_amt) if m['name'] == 'Communication Allowance' else 0
 						total_earning += calc_amt
 						calc_map.append({'salary_component': m['name'], 'amount': calc_amt})
@@ -230,22 +232,26 @@ class SalaryStructure(Document):
 					# frappe.throw('hello')
 					if self.get(m['field_name']) and m['name'] == 'SWS':
 						sws_amt = flt(settings.get('sws'))
-						calc_amt = roundoff(sws_amt)
+						# calc_amt = roundoff(sws_amt)
+						calc_amt = flt(sws_amt)
 						calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 
 					elif self.get(m['field_name']) and m['name'] == 'GIS':
 						gis_amt = flt(settings.get("gis"))
-						calc_amt = roundoff(gis_amt)
+						# calc_amt = roundoff(gis_amt)
+						calc_amt = flt(gis_amt)
 						calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 
 					elif self.get(m['field_name']) and m['name'] == 'PF':
 						pf_amt = (flt(basic_pay)+flt(basic_pay_arrears))*flt(settings.get("employee_pf"))*0.01
-						calc_amt = roundoff(pf_amt)
+						# calc_amt = roundoff(pf_amt)
+						calc_amt = flt(pf_amt)
 						calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 
 					elif self.get(m['field_name']) and m['name'] == 'Health Contribution':
 						health_cont_amt = flt(total_earning)*flt(settings.get("health_contribution"))*0.01
-						calc_amt = roundoff(health_cont_amt)
+						# calc_amt = roundoff(health_cont_amt)
+						calc_amt = flt(health_cont_amt)
 						calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 					elif self.get(m['field_name']) and m['name'] == 'HRA':
 						# frappe.throw('hra')
@@ -257,7 +263,8 @@ class SalaryStructure(Document):
 							frappe.throw('Add Payment Method, Calculation Based, Amount in salary component in HRA')
 						if payment_method == 'Percent' and cal_based == 'Basic Pay' and amount:
 							hra_amount = (flt(basic_pay) * flt(amount) / 100)
-						calc_amt = roundoff(hra_amount)
+						# calc_amt = roundoff(hra_amount)
+						calc_amt = flt(hra_amount)
 						frappe.throw(str(calc_amt))
 						calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 					else:
@@ -268,7 +275,8 @@ class SalaryStructure(Document):
 			# Calculating Salary Tax
 			if ed == 'deductions':
 				calc_amt = get_salary_tax(math.floor(flt(total_earning)-flt(pf_amt)-flt(gis_amt)-(comm_allowance*0.5)))
-				calc_amt = roundoff(calc_amt)
+				# calc_amt = roundoff(calc_amt)
+				calc_amt = flt(calc_amt)
 				total_deduction += calc_amt
 				calc_map.append({'salary_component': 'Salary Tax', 'amount': flt(calc_amt)})
 
