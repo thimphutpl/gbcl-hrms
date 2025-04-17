@@ -36,6 +36,7 @@ from hrms.hr.utils import (
 )
 from hrms.mixins.pwa_notifications import PWANotificationsMixin
 from hrms.utils import get_employee_email
+from erpnext.custom_workflow import validate_workflow_states
 
 
 class LeaveDayBlockedError(frappe.ValidationError):
@@ -84,6 +85,9 @@ class LeaveApplication(Document, PWANotificationsMixin):
 		self.validate_salary_processed_days()
 		self.validate_attendance()
 		self.set_half_day_date()
+
+		validate_workflow_states(self)
+		
 		if frappe.db.get_value("Leave Type", self.leave_type, "is_optional_leave"):
 			self.validate_optional_leave()
 		self.validate_applicable_after()
