@@ -259,7 +259,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-27 16:42:54.415154",
+ "modified": "2025-04-18 11:19:25.616937",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Advance",
@@ -320,5 +320,6 @@
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],
+ "title_field": "employee_name",
  "track_changes": 1
 }

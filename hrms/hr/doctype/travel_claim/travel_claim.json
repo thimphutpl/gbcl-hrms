@@ -314,7 +314,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-18 10:50:01.907894",
+ "modified": "2025-04-18 11:18:56.591071",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Claim",
@@ -372,5 +372,6 @@
  ],
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "title_field": "employee_name"
 }
