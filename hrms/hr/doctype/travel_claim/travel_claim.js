@@ -77,9 +77,19 @@ frappe.ui.form.on("Travel Claim Item", {
 		frm.trigger("calculate", cdt, cdn);
 	},
 
+	dsa_percent: function(frm, cdt, cdn) {
+		frm.trigger("calculate", cdt, cdn);
+	},
+
 	calculate: function (frm, cdt, cdn) {
         let row = frappe.get_doc(cdt, cdn);
+		// calculate mileage
         frappe.model.set_value(cdt, cdn, "mileage_amount", flt(row.mileage_rate) * flt(row.distance));
+
+		// calcuate dsa
+		let new_dsa = flt(row.dsa_percent)/flt(100) * flt(row.dsa)
+		frappe.model.set_value(cdt, cdn, "amount", flt(new_dsa) * flt(row.no_of_days));
+
         frappe.model.set_value(cdt, cdn, "amount", flt(row.mileage_amount) + flt(row.amount));
     },
 });
