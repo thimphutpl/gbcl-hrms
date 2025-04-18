@@ -688,7 +688,7 @@ def share_doc_with_approver(doc, user):
 	doc_before_save = doc.get_doc_before_save()
 	if doc_before_save:
 		approvers = {
-			"Leave Application": "leave_approver",
+			
 			"Expense Claim": "expense_approver",
 			"Shift Request": "approver",
 		}

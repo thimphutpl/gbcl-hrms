@@ -22,19 +22,19 @@ frappe.ui.form.on("Leave Application", {
 		if (!frm.doc.posting_date) {
 			frm.set_value("posting_date", frappe.datetime.get_today());
 		}
-		if (frm.doc.docstatus == 0) {
-			return frappe.call({
-				method: "hrms.hr.doctype.leave_application.leave_application.get_mandatory_approval",
-				args: {
-					doctype: frm.doc.doctype,
-				},
-				callback: function (r) {
-					if (!r.exc && r.message) {
-						frm.toggle_reqd("leave_approver", true);
-					}
-				},
-			});
-		}
+		// if (frm.doc.docstatus == 0) {
+		// 	return frappe.call({
+		// 		method: "hrms.hr.doctype.leave_application.leave_application.get_mandatory_approval",
+		// 		args: {
+		// 			doctype: frm.doc.doctype,
+		// 		},
+		// 		callback: function (r) {
+		// 			if (!r.exc && r.message) {
+		// 				frm.toggle_reqd("leave_approver", true);
+		// 			}
+		// 		},
+		// 	});
+		// }
 	},
 
 	validate: function (frm) {
@@ -127,7 +127,7 @@ frappe.ui.form.on("Leave Application", {
 	employee: function (frm) {
 		frm.trigger("make_dashboard");
 		frm.trigger("get_leave_balance");
-		frm.trigger("set_leave_approver");
+		// frm.trigger("set_leave_approver");
 	},
 
 	leave_approver: function (frm) {
@@ -239,21 +239,21 @@ frappe.ui.form.on("Leave Application", {
 		}
 	},
 
-	set_leave_approver: function (frm) {
-		if (frm.doc.employee) {
-			return frappe.call({
-				method: "hrms.hr.doctype.leave_application.leave_application.get_leave_approver",
-				args: {
-					employee: frm.doc.employee,
-				},
-				callback: function (r) {
-					if (r && r.message) {
-						frm.set_value("leave_approver", r.message);
-					}
-				},
-			});
-		}
-	},
+	// set_leave_approver: function (frm) {
+	// 	if (frm.doc.employee) {
+	// 		return frappe.call({
+	// 			method: "hrms.hr.doctype.leave_application.leave_application.get_leave_approver",
+	// 			args: {
+	// 				employee: frm.doc.employee,
+	// 			},
+	// 			callback: function (r) {
+	// 				if (r && r.message) {
+	// 					frm.set_value("leave_approver", r.message);
+	// 				}
+	// 			},
+	// 		});
+	// 	}
+	// },
 
 	set_form_buttons: async function (frm) {
 		let self_approval_not_allowed = frm.doc.__onload

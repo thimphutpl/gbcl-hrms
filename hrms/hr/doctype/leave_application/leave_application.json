@@ -27,6 +27,7 @@
   "section_break_7",
   "leave_approver",
   "leave_approver_name",
+  "leave_approver_designation",
   "follow_via_email",
   "column_break_18",
   "posting_date",
@@ -248,6 +249,11 @@
    "fieldname": "sb_other_details",
    "fieldtype": "Section Break",
    "label": "Other Details"
+  },
+  {
+   "fieldname": "leave_approver_designation",
+   "fieldtype": "Data",
+   "label": "Leave Approver Designation"
   }
  ],
  "icon": "fa fa-calendar",
@@ -255,7 +261,7 @@
  "is_submittable": 1,
  "links": [],
  "max_attachments": 3,
- "modified": "2024-04-08 13:56:03.818019",
+ "modified": "2025-04-18 11:31:26.500465",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Leave Application",
@@ -283,7 +289,6 @@
    "read": 1,
    "report": 1,
    "role": "HR Manager",
-   "set_user_permissions": 1,
    "share": 1,
    "submit": 1,
    "write": 1
@@ -303,7 +308,6 @@
    "read": 1,
    "report": 1,
    "role": "HR User",
-   "set_user_permissions": 1,
    "share": 1,
    "submit": 1,
    "write": 1
