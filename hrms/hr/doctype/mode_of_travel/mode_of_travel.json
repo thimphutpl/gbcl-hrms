@@ -1,0 +1,105 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:mode_of_travel",
+ "creation": "2025-04-18 10:42:44.963238",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "mode_of_travel",
+  "description",
+  "column_break_bhbc",
+  "disabled",
+  "allow_mileage_claim"
+ ],
+ "fields": [
+  {
+   "fieldname": "mode_of_travel",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Mode of Travel",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description"
+  },
+  {
+   "fieldname": "column_break_bhbc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_mileage_claim",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Allow Mileage Claim"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-04-18 10:46:49.396923",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Mode of Travel",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR User",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "share": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
