@@ -76,7 +76,6 @@ class TravelAuthorization(Document):
 				if not (current_item.to_date and next_item.from_date):
 					continue
 				
-				# Calculate required next date (current To Date + 1 day)
 				required_next_date = frappe.utils.add_days(current_item.to_date, 1)
 				
 				if next_item.from_date != required_next_date:
