@@ -9,6 +9,7 @@ frappe.ui.form.on("Travel Claim", {
     
 	refresh(frm) {
 		refresh_html(frm);
+		frm.trigger("toggle_fields");
 	},
 
 	employee: function (frm) {
@@ -66,6 +67,20 @@ frappe.ui.form.on("Travel Claim", {
 			},
 		});
 	},
+
+	mode_of_travel: function(frm) {
+		frm.trigger("toggle_fields");
+	},
+	
+	toggle_fields: function(frm) {
+		frm.call("is_mileage_claim_allowed").then((r) => {
+			const isAllowed = r.message.is_allowed;
+	
+			frm.fields_dict.items.grid.update_docfield_property("mileage_rate", "read_only", !isAllowed);
+			frm.fields_dict.items.grid.update_docfield_property("distance", "read_only", !isAllowed);
+		});
+	}
+	
 });
 
 frappe.ui.form.on("Travel Claim Item", {

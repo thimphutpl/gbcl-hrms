@@ -133,7 +133,6 @@
    "read_only": 1
   },
   {
-   "collapsible": 1,
    "fieldname": "mileage_details_section",
    "fieldtype": "Section Break",
    "label": "Mileage Details"
@@ -167,7 +166,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-04-18 10:59:16.592144",
+ "modified": "2025-04-18 12:35:14.381986",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Claim Item",

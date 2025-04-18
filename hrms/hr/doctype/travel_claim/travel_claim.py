@@ -181,6 +181,12 @@ class TravelClaim(Document):
 			self.db_set("journal_entry_status", "Forwarded to accounts for processing payment on {0}".format(now_datetime().strftime('%Y-%m-%d %H:%M:%S')))
 			frappe.msgprint(_('{} posted to accounts').format(frappe.get_desk_link(je.doctype, je.name)))
 
+	@frappe.whitelist()
+	def is_mileage_claim_allowed(self) -> dict[str, bool]:
+		is_allowed = frappe.db.get_value("Mode of Travel", self.mode_of_travel, "allow_mileage_claim")
+		return {
+			"is_allowed": bool(is_allowed)
+		}
 
 @frappe.whitelist()
 def get_travel_claim(dt, dn):
