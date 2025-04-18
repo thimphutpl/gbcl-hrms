@@ -158,7 +158,8 @@
    "fieldname": "leave_approver",
    "fieldtype": "Link",
    "label": "Leave Approver",
-   "options": "User"
+   "options": "User",
+   "read_only": 1
   },
   {
    "fieldname": "leave_approver_name",
@@ -253,7 +254,8 @@
   {
    "fieldname": "leave_approver_designation",
    "fieldtype": "Data",
-   "label": "Leave Approver Designation"
+   "label": "Leave Approver Designation",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-calendar",
@@ -261,7 +263,7 @@
  "is_submittable": 1,
  "links": [],
  "max_attachments": 3,
- "modified": "2025-04-18 11:31:26.500465",
+ "modified": "2025-04-18 12:56:49.751492",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Leave Application",
