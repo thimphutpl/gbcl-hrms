@@ -28,7 +28,7 @@ from erpnext.custom_workflow import validate_workflow_states, notify_workflow_st
 class TravelAdvance(Document):
 	def validate(self):
 		self.validate_advance_amount()
-		# validate_workflow_states(self)
+		validate_workflow_states(self)
 
 	def validate_advance_amount(self):
 		if flt(self.advance_amount) > flt(flt(self.estimated_amount) * 0.9):
