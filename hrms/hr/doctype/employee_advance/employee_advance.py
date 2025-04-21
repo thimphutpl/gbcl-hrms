@@ -26,6 +26,8 @@ from erpnext.accounts.doctype.journal_entry.journal_entry import get_default_ban
 
 import hrms
 from hrms.hr.utils import validate_active_employee
+from erpnext.custom_workflow import validate_workflow_states
+
 from hrms.hr.hr_custom_function import (
 	get_basic_and_gross_pay
 )
@@ -52,6 +54,7 @@ class EmployeeAdvance(Document):
 		# self.set_pending_amount()
 		self.validate_dates()
 		self.calculate_amount()
+		validate_workflow_states(self)
 
 	def on_submit(self):
 		self.post_journal_entry()
