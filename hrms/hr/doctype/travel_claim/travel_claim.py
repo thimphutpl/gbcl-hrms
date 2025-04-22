@@ -147,7 +147,7 @@ class TravelClaim(Document):
 
 		advance_account = frappe.db.get_value("Company", 'Green Bhutan Corporation Limited', 'travel_advance_account')
 		if not advance_account:
-			frappe.throw("Setup Advance to Employee (Travel) in HR Accounts Settings")
+			frappe.throw("Setup Advance to Employee (Travel) in Company")
 
 		# Payables
 		je = frappe.new_doc("Journal Entry")
