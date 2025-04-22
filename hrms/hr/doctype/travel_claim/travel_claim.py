@@ -29,7 +29,7 @@ class TravelClaim(Document):
 	def validate(self):
 		self.get_advance()
 		self.calculate_amount()
-		# validate_workflow_states(self)
+		validate_workflow_states(self)
 
 	def on_submit(self):
 		# self.update_travel_authorization()
