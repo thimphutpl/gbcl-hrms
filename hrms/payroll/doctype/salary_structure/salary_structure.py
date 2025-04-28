@@ -62,7 +62,7 @@ class SalaryStructure(Document):
 				)
 
 	def validate_amount(self):
-		if flt(self.net_pay) < 0 and self.salary_slip_based_on_timesheet:
+		if flt(self.net_pay) <= 0: 
 			frappe.throw(_("Net pay cannot be negative"))
 
 	def validate_salary_component(self):
@@ -219,6 +219,13 @@ class SalaryStructure(Document):
 							if payment_method == 'Lumpsum' and amount:
 								# frappe.throw(str(amount))
 								calc_amt = (flt(amount))
+						if m["field_name"] == "eligible_for_conveyance_allowance":
+							payment_method = frappe.db.get_value("Salary Component", "Conveyance Allowance", "payment_method")
+							amount = frappe.db.get_value("Salary Component", "Conveyance Allowance", "amount")
+							if payment_method == 'Lumpsum' and amount:
+								# frappe.throw(str(amount))
+
+								calc_amt = (flt(amount))
 							# calc_amt = roundoff(hra_amount)
 							# frappe.throw(str(calc_amt))
 							# calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
@@ -265,7 +272,6 @@ class SalaryStructure(Document):
 							hra_amount = (flt(basic_pay) * flt(amount) / 100)
 						# calc_amt = roundoff(hra_amount)
 						calc_amt = flt(hra_amount)
-						frappe.throw(str(calc_amt))
 						calc_map.append({'salary_component': m['name'], 'amount': flt(calc_amt)})
 					else:
 						calc_amt = 0
