@@ -15,7 +15,7 @@ class TravelAdjustment(Document):
 		validate_active_employee(self.employee)
 		self._validate_travel_last_day()
 		self.validate_travel_dates()
-		# validate_workflow_states(self)
+		validate_workflow_states(self)
 
 	def on_update(self):
 		"""Check for date overlaps when the document is updated."""
@@ -150,7 +150,8 @@ def make_travel_adjustment(source_name, target_doc=None):
 			"Travel Authorization": {
 				"doctype": "Travel Adjustment",
 				"field_map": {
-					"name": "travel_authorization"
+					"name": "travel_authorization",
+					"employee":"employee"
 				},
 				"validation": {
 					"docstatus": ["=", 1],
