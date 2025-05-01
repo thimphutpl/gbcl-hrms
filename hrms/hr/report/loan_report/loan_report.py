@@ -44,7 +44,7 @@ def get_data(filters):
 	data = frappe.db.sql("""
 		select t1.employee, t3.employee_name, t3.passport_number, t1.designation,
 			t2.reference_type, t2.institution_name, t2.reference_number, t2.amount, t2.total_deductible_amount, t2.total_outstanding_amount,
-			t1.company, t1.cost_center, t1.branch, t1.department, t1.division, t1.section,
+			t1.company, t1.cost_center, t1.branch, t1.department, t1.devision, t1.section,
 			t1.fiscal_year, t1.month
 		from `tabSalary Slip` t1, `tabSalary Detail` t2, `tabEmployee` t3
 		where t1.docstatus = 1 {}
