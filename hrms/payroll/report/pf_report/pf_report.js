@@ -15,7 +15,9 @@ frappe.query_reports["PF Report"] = {
 			"fieldname": "month",
 			"label": __("Month"),
 			"fieldtype": "Select",
-			"options": "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12",
+			"options": "January\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
+			
+			
 			// "default": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][frappe.datetime.str_to_obj(frappe.datetime.get_today()).getMonth()],
 		},
 		{
