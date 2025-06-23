@@ -6,21 +6,21 @@ frappe.ui.form.on("Training Event", {
 		frm.get_field("employees").grid.set_multiple_add("employee");
 	},
 	refresh: function (frm) {
-		if (!frm.doc.__islocal) {
-			frm.add_custom_button(__("Training Result"), function () {
-				frappe.route_options = {
-					training_event: frm.doc.name,
-				};
-				frappe.set_route("List", "Training Result");
-			});
-			frm.add_custom_button(__("Training Feedback"), function () {
-				frappe.route_options = {
-					training_event: frm.doc.name,
-				};
-				frappe.set_route("List", "Training Feedback");
-			});
-		}
-		frm.events.set_employee_query(frm);
+		// if (!frm.doc.__islocal) {
+		// 	frm.add_custom_button(__("Training Result"), function () {
+		// 		frappe.route_options = {
+		// 			training_event: frm.doc.name,
+		// 		};
+		// 		frappe.set_route("List", "Training Result");
+		// 	});
+		// 	frm.add_custom_button(__("Training Feedback"), function () {
+		// 		frappe.route_options = {
+		// 			training_event: frm.doc.name,
+		// 		};
+		// 		frappe.set_route("List", "Training Feedback");
+		// 	});
+		// }
+		// frm.events.set_employee_query(frm);
 	},
 
 	set_employee_query: function (frm) {

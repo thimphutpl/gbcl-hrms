@@ -53,6 +53,10 @@ frappe.ui.form.on("Salary Structure", {
 		calculate_others(frm);
 	},
 
+	eligible_for_contract_allowance: function(frm){
+		calculate_others(frm);
+	},
+
 	// Benefits & Deduction
 	eligible_for_fixed_allowance: function(frm){
 		calculate_others(frm);
@@ -70,6 +74,12 @@ frappe.ui.form.on("Salary Structure", {
 		calculate_others(frm);
 	},
 	eligible_for_hra:function(frm){
+		calculate_others(frm);
+	},
+	one_off_fixed_payment:function(frm){
+		calculate_others(frm);
+	},
+	employee_pf: function(frm){
 		calculate_others(frm);
 	},
 

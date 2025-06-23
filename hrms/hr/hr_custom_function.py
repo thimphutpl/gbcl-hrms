@@ -28,6 +28,7 @@ def get_payroll_settings(employee=None):
 						and d.name = e.grade
 				""".format(employee), as_dict=True)
 		settings = settings[0] if settings else frappe._dict()
+		# frappe.throw(str(settings))
 		return settings
 
 @frappe.whitelist()

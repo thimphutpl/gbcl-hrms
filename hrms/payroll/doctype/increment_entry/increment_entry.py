@@ -61,6 +61,7 @@ class IncrementEntry(Document):
 			{}
 			order by t1.branch, t1.name
 		""".format(self.month_name, self.fiscal_year, self.month_name, cond), as_dict=True)
+		# frappe.throw(str(emp_list))
 		if emp_list:
 			for a in emp_list:
 				new_basic, increment, old_basic = self.get_employee_payscale(a.employee)

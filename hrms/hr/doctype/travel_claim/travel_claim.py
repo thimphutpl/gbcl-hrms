@@ -28,11 +28,14 @@ from erpnext.custom_workflow import validate_workflow_states, notify_workflow_st
 class TravelClaim(Document):
 	def validate(self):
 		self.get_advance()
+		self.calculate_miscellaneous()
 		self.calculate_amount()
 		# validate_workflow_states(self)
 
 	def on_submit(self):
+		# self.update_travel_authorization()
 		self.post_journal_entry()
+		# self.post_journal_entry()
 
 	def before_cancel(self):
 		if self.journal_entry:
@@ -42,17 +45,43 @@ class TravelClaim(Document):
 				frappe.msgprint(_("Journal Entry {0} has been canceled.").format(self.journal_entry))
 
 	def on_cancel(self):
-		if self.journal_entry:
-			frappe.delete_doc("Journal Entry", self.journal_entry, force=1, ignore_permissions=True)
-			self.db_set("journal_entry", "")
-			self.db_set("journal_entry_status", "")
-			frappe.msgprint(_("Journal Entry {0} has been deleted.").format(self.journal_entry))
+		
+		self.ignore_linked_doctypes = ("GL Entry", "Salary Slip", "Journal Entry","Payment Ledger Entry")
+		# if self.journal_entry:
+		journal_entries = frappe.get_all(
+			"Journal Entry",
+			filters={"reference_name": self.name},
+			pluck="name"
+		)
+
+		for je in journal_entries:
+			doc = frappe.get_doc("Journal Entry", je)
+			if doc.docstatus == 1:
+				doc.cancel()
+				doc.db_update()  
+		
+		payment_ledger_entries = frappe.get_all(
+			"Payment Ledger Entry",
+			filters={"voucher_no": self.journal_entry},
+			pluck="name"
+				)
+
+		for entry in payment_ledger_entries:
+			frappe.delete_doc("Payment Ledger Entry", entry, force=1, ignore_permissions=True)
+
+		# self.db_set("journal_entry", "")
+		# self.db_set("journal_entry_status", "")
+		frappe.msgprint(_("Journal Entry {0} has been deleted.").format(self.journal_entry))
 		# frappe.throw(
 			# 		_("You need to cancel Journal Entry {} to be able to cancel this document.").format(
 			# 			get_link_to_form("Journal Entry", self.journal_entry)
 			# 		),
 			# 		title=_("Not Allowed"),
 			# 	)
+	def calculate_miscellaneous(self):
+		self.miscellaneous_amount = 0
+		for i in self.miscellaneous_item:
+			self.miscellaneous_amount += i.amount
 
 	def calculate_amount(self):
 		total, advance_amount = 0.0, 0.0
@@ -97,17 +126,130 @@ class TravelClaim(Document):
 		self.set("advances", advances)
 
 	def post_journal_entry(self):
-		travel_expense_account = frappe.db.get_value("Travel Type", self.travel_type, "account")
+		self.post_payable_entry()
+		if self.net_amount > 0:
+			self.post_payment_entry()
+	def post_payable_entry(self):
+		if self.cost_center: 
+			cost_center = self.cost_center
+		else:
+			cost_center = frappe.db.get_value("Employee", self.employee, "cost_center")
+		if not cost_center:
+			frappe.throw("Setup Cost Center for employee in Employee Master")
+
+		# expense_bank_account = frappe.db.get_value("Branch", self.branch, "expense_bank_account")
+		# if not expense_bank_account:
+		# 	frappe.throw("Setup Default Expense Bank Account in {}".format(frappe.get_desk_link("Branch", self.branch)))
+		
+		gl_account = ""	
+		if self.travel_type=="Domestic":
+			expense_account = frappe.db.get_value("Company", self.company, "domestic_travel_expense")
+			if not expense_account:
+				frappe.throw("Please set domestic travel expense in company")
+		if self.travel_type=="International":
+			expense_account = frappe.db.get_value("Company", self.company, "international_travel_expense")
+			if not expense_account:
+				frappe.throw("Please set domestic travel expense in company")
+		
+		# expense_account = frappe.db.get_single_value("HR Accounts Settings", gl_account)
+		payable_account = frappe.db.get_value("Company", self.company, 'default_payable_account')
+		if not expense_account:
+			frappe.throw("Setup Travel/Training Accounts in HR Accounts Settings")
+
+		advance_account = frappe.db.get_value("Company", self.company, 'travel_advance_account')
+		if not advance_account:
+			frappe.throw("Setup Advance to Employee (Travel) in Company")
+
+		# Payables
+		je = frappe.new_doc("Journal Entry")
+		je.flags.ignore_permissions = 1
+		je.title = "Travel Payable (" + self.employee_name + "  " + self.name + ")"
+		je.voucher_type = "Journal Entry"
+		je.naming_series = "Journal Voucher"
+		je.remark = 'Claim payment against : ' + self.name
+		je.posting_date = self.posting_date
+		je.branch = self.branch
+		je.company = self.company
+
+		if self.miscellaneous_amount > 0:
+			for i in self.miscellaneous_item:
+				miscellaneous_expense_account = frappe.db.get_value("Miscellaneous", i.miscellaneous_type, "accounts")
+				if not miscellaneous_expense_account:
+					frappe.throw(f"No account configured for miscellaneous type '{i.miscellaneous_type}' in row #{i.idx}")
+				je.append("accounts", {
+				"account": miscellaneous_expense_account,
+				"reference_type": "Travel Claim",
+				"reference_name": self.name,
+				"cost_center": self.cost_center,
+				"debit_in_account_currency": flt(i.amount),
+				"debit": flt(i.amount),
+			})
+			je.append("accounts", {
+				"account": expense_account,
+				"reference_type": "Travel Claim",
+				"reference_name": self.name,
+				"cost_center": self.cost_center,
+				"debit_in_account_currency": flt(self.total_amount)-flt(self.miscellaneous_amount),
+				"debit": flt(self.total_amount)-flt(self.miscellaneous_amount),
+			})
+
+		else:
+			je.append("accounts", {
+					"account": expense_account,
+					"reference_type": "Travel Claim",
+					"reference_name": self.name,
+					"cost_center": self.cost_center,
+					"debit_in_account_currency": flt(self.total_amount),
+					"debit": flt(self.total_amount),
+				})
+
+		if self.net_amount > 0:
+			je.append("accounts", {
+					"account": payable_account,
+					"reference_type": self.doctype,
+					"reference_name": self.name,
+					"cost_center": self.cost_center,
+					"credit_in_account_currency": flt(self.net_amount,2),
+					"credit": flt(self.net_amount,2),
+					"party_type": "Employee",
+					"party": self.employee, 
+				})
+		else:
+			je.append("accounts", {
+					"account": advance_account,
+					"reference_type": self.doctype,
+					"reference_name": self.name,
+					"cost_center": self.cost_center,
+					"credit_in_account_currency": flt(self.total_amount),
+					"credit": flt(self.total_amount),
+					"party_type": "Employee",
+					"party": self.employee, 
+				})
+
+		if flt(self.advance_amount) > 0 and self.net_amount > 0:
+			je.append("accounts", {
+				"account": advance_account,
+				"party_type": "Employee",
+				"party": self.employee,
+				"reference_type": "Travel Claim",
+				"reference_name": self.name,
+				"cost_center": cost_center,
+				"credit_in_account_currency": flt(self.advance_amount),
+				"credit": flt(self.advance_amount),
+			})
+		# frappe.throw(frappe.as_json(je))
+		je.insert()
+		je.submit()
+	def post_payment_entry(self):
+		# travel_expense_account = frappe.db.get_value("Travel Type", self.travel_type, "account")
 		advance_account = frappe.db.get_value("Company", self.company, "travel_advance_account")
 		bank_account = frappe.db.get_value("Branch", self.branch, "expense_bank_account")
+		payable_account = frappe.db.get_value("Company", self.company, 'default_payable_account')
 
-		if not travel_expense_account:
-			frappe.throw(
-				"Travel Expense Account is not set for {}. Please configure it in the Travel Type.".format(
-					frappe.get_desk_link("Travel Type", self.travel_type)
-				),
-				title="Missing Travel Expense Account"
-			)
+
+		if not payable_account:
+			frappe.throw("Default Payable account missing in company")
+			
 
 		if not advance_account:
 			frappe.throw(
@@ -128,9 +270,9 @@ class TravelClaim(Document):
 		# Posting Journal Entry
 		accounts = []
 		accounts.append({
-			"account": travel_expense_account,
-			"debit": flt(self.total_amount),
-			"debit_in_account_currency": flt(self.total_amount),
+			"account": payable_account,
+			"debit": flt(self.total_amount) - flt(self.advance_amount),
+			"debit_in_account_currency": flt(self.total_amount) - flt(self.advance_amount),
 			"cost_center": self.cost_center,
 			"party_check": 1,
 			"party_type": "Employee",
@@ -140,16 +282,16 @@ class TravelClaim(Document):
 			"reference_name": self.name,
 		})
 
-		if flt(self.advance_amount) > 0:
-			accounts.append({
-				"account": advance_account,
-				"credit": flt(self.advance_amount),
-				"credit_in_account_currency": flt(self.advance_amount),
-				"cost_center": self.cost_center,
-				"party_check": 1,
-				"party_type": "Employee",
-				"party": self.employee,
-			})
+		# if flt(self.advance_amount) > 0:
+		# 	accounts.append({
+		# 		"account": advance_account,
+		# 		"credit": flt(self.advance_amount),
+		# 		"credit_in_account_currency": flt(self.advance_amount),
+		# 		"cost_center": self.cost_center,
+		# 		"party_check": 1,
+		# 		"party_type": "Employee",
+		# 		"party": self.employee,
+		# 	})
 
 		accounts.append({
 			"account": bank_account,
@@ -167,7 +309,7 @@ class TravelClaim(Document):
 				"doctype": "Journal Entry",
 				"voucher_type": voucher_type,
 				"naming_series": naming_series,
-				"title": "Travel Advance - "+self.employee,
+				"title": "Travel Payment - "+self.employee,
 				"user_remark": "Travek Advance - "+self.employee,
 				"posting_date": nowdate(),
 				"company": self.company,
@@ -175,12 +317,21 @@ class TravelClaim(Document):
 				"branch": self.branch
 		})
 
+		je.insert()
+		# je.submit()
+
 		if self.advance_amount:
 			je.save(ignore_permissions = True)
 			self.db_set("journal_entry", je.name)
 			self.db_set("journal_entry_status", "Forwarded to accounts for processing payment on {0}".format(now_datetime().strftime('%Y-%m-%d %H:%M:%S')))
 			frappe.msgprint(_('{} posted to accounts').format(frappe.get_desk_link(je.doctype, je.name)))
 
+	@frappe.whitelist()
+	def is_mileage_claim_allowed(self) -> dict[str, bool]:
+		is_allowed = frappe.db.get_value("Mode of Travel", self.mode_of_travel, "allow_mileage_claim")
+		return {
+			"is_allowed": bool(is_allowed)
+		}
 
 @frappe.whitelist()
 def get_travel_claim(dt, dn):

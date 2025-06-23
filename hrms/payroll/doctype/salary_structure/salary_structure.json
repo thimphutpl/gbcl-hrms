@@ -46,6 +46,7 @@
   "column_break_gpiw",
   "eligible_for_sws",
   "eligible_for_overtime_and_payment",
+  "one_off_fixed_payment",
   "column_break_frfr",
   "eligible_for_leave_encashment",
   "eligible_for_ltc",
@@ -60,76 +61,6 @@
   "net_pay"
  ],
  "fields": [
-  {
-   "fieldname": "company",
-   "fieldtype": "Link",
-   "label": "Company",
-   "options": "Company",
-   "remember_last_selected_value": 1,
-   "reqd": 1,
-   "search_index": 1
-  },
-  {
-   "fieldname": "column_break1",
-   "fieldtype": "Column Break",
-   "width": "50%"
-  },
-  {
-   "allow_on_submit": 1,
-   "default": "Yes",
-   "fieldname": "is_active",
-   "fieldtype": "Select",
-   "in_list_view": 1,
-   "in_standard_filter": 1,
-   "label": "Is Active",
-   "oldfieldname": "is_active",
-   "oldfieldtype": "Select",
-   "options": "\nYes\nNo",
-   "reqd": 1
-  },
-  {
-   "fieldname": "earnings",
-   "fieldtype": "Table",
-   "label": "Earnings",
-   "options": "Salary Detail"
-  },
-  {
-   "fieldname": "deductions",
-   "fieldtype": "Table",
-   "label": "Deductions",
-   "options": "Salary Detail"
-  },
-  {
-   "fieldname": "net_pay_detail",
-   "fieldtype": "Section Break",
-   "options": "Simple"
-  },
-  {
-   "fieldname": "column_break2",
-   "fieldtype": "Column Break",
-   "width": "50%"
-  },
-  {
-   "fieldname": "total_earning",
-   "fieldtype": "Currency",
-   "label": "Total Earning",
-   "options": "currency",
-   "read_only": 1
-  },
-  {
-   "fieldname": "total_deduction",
-   "fieldtype": "Currency",
-   "label": "Total Deduction",
-   "options": "currency",
-   "read_only": 1
-  },
-  {
-   "fieldname": "net_pay",
-   "fieldtype": "Currency",
-   "label": "Net Pay",
-   "options": "currency",
-   "read_only": 1
-  },
   {
    "fieldname": "employee",
    "fieldtype": "Link",
@@ -148,8 +79,32 @@
    "read_only": 1
   },
   {
+   "fetch_from": "employee.grade",
+   "fieldname": "employee_grade",
+   "fieldtype": "Link",
+   "label": "Employee Grade",
+   "options": "Employee Grade",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.employment_type",
+   "fieldname": "employment_type",
+   "fieldtype": "Link",
+   "label": "Employment Type",
+   "options": "Employment Type"
+  },
+  {
    "fieldname": "column_break_nhoy",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "remember_last_selected_value": 1,
+   "reqd": 1,
+   "search_index": 1
   },
   {
    "fetch_from": "employee.branch",
@@ -170,12 +125,43 @@
    "read_only": 1
   },
   {
-   "fieldname": "earnings_deductions_section",
-   "fieldtype": "Section Break"
+   "fieldname": "column_break1",
+   "fieldtype": "Column Break",
+   "width": "50%"
   },
   {
-   "fieldname": "column_break_ifzc",
-   "fieldtype": "Column Break"
+   "allow_on_submit": 1,
+   "default": "Yes",
+   "fieldname": "is_active",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Is Active",
+   "oldfieldname": "is_active",
+   "oldfieldtype": "Select",
+   "options": "\nYes\nNo",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.date_of_joining",
+   "fieldname": "from_date",
+   "fieldtype": "Date",
+   "label": "From Date",
+   "reqd": 1
+  },
+  {
+   "depends_on": "eval:doc.employee && doc.is_active == \"No\"",
+   "fieldname": "to_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To Date"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency",
+   "reqd": 1
   },
   {
    "fieldname": "section_break_cprd",
@@ -186,26 +172,6 @@
    "fieldname": "eligible_for_contract_allowance",
    "fieldtype": "Check",
    "label": " Eligible for Contract allowance"
-  },
-  {
-   "fieldname": "column_break_yjrq",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "eligible_for_corporate_allowance",
-   "fieldtype": "Check",
-   "label": "Eligible for Corporate Allowance"
-  },
-  {
-   "fieldname": "column_break_mehf",
-   "fieldtype": "Column Break"
-  },
-  {
-   "default": "0",
-   "fieldname": "eligible_for_communication_allowance",
-   "fieldtype": "Check",
-   "label": "Eligible for Communication Allowance"
   },
   {
    "default": "Percent",
@@ -222,6 +188,36 @@
    "label": "Value (Contract Allowance)"
   },
   {
+   "default": "0",
+   "fieldname": "eligible_for_conveyance_allowance",
+   "fieldtype": "Check",
+   "label": "Eligible for Conveyance Allowance"
+  },
+  {
+   "default": "Lumpsum",
+   "depends_on": "eval:doc.eligible_for_conveyance_allowance",
+   "fieldname": "conveyance_allowance_method",
+   "fieldtype": "Select",
+   "label": "Payment Method(Conveyance Allowance)",
+   "options": "Lumpsum\nPercent"
+  },
+  {
+   "depends_on": "eval:doc.eligible_for_conveyance_allowance",
+   "fieldname": "conveyance_allowance",
+   "fieldtype": "Float",
+   "label": "Value (Conveyance Allowance)"
+  },
+  {
+   "fieldname": "column_break_yjrq",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "eligible_for_corporate_allowance",
+   "fieldtype": "Check",
+   "label": "Eligible for Corporate Allowance"
+  },
+  {
    "default": "Percent",
    "depends_on": "eval:doc.eligible_for_corporate_allowance",
    "fieldname": "corporate_allowance_method",
@@ -236,6 +232,22 @@
    "label": "Value (Corporate Allowance)"
   },
   {
+   "default": "0",
+   "fieldname": "eligible_for_fixed_allowance",
+   "fieldtype": "Check",
+   "label": " Eligible for Fixed Allowance (Increment)"
+  },
+  {
+   "fieldname": "column_break_mehf",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "eligible_for_communication_allowance",
+   "fieldtype": "Check",
+   "label": "Eligible for Communication Allowance"
+  },
+  {
    "depends_on": "eval:doc.eligible_for_communication_allowance",
    "fieldname": "communication_allowance_method",
    "fieldtype": "Select",
@@ -247,6 +259,27 @@
    "fieldname": "communication_allowance",
    "fieldtype": "Float",
    "label": "Value (Communication Allowance)"
+  },
+  {
+   "default": "0",
+   "description": "(Monthly Variable Compensation)",
+   "fieldname": "eligible_for_monthly_variable_compensation",
+   "fieldtype": "Check",
+   "label": "Eligible for MVC"
+  },
+  {
+   "default": "Lumpsum",
+   "depends_on": "eval:doc.eligible_for_monthly_variable_compensation",
+   "fieldname": "mvc_method",
+   "fieldtype": "Select",
+   "label": "Payment Method (MVC)",
+   "options": "Lumpsum\nPercent"
+  },
+  {
+   "depends_on": "eval:doc.eligible_for_monthly_variable_compensation",
+   "fieldname": "mvc",
+   "fieldtype": "Float",
+   "label": "Value (MVC)"
   },
   {
    "fieldname": "benefits_deductions_section",
@@ -272,6 +305,12 @@
    "label": "Eligible for Health Contribution"
   },
   {
+   "default": "0",
+   "fieldname": "eligible_for_hra",
+   "fieldtype": "Check",
+   "label": "Eligible for HRA"
+  },
+  {
    "fieldname": "column_break_gpiw",
    "fieldtype": "Column Break"
   },
@@ -287,6 +326,12 @@
    "fieldtype": "Check",
    "hidden": 1,
    "label": "Eligible for Overtime and Payment"
+  },
+  {
+   "default": "0",
+   "fieldname": "one_off_fixed_payment",
+   "fieldtype": "Check",
+   "label": "One off FIxed Payment"
   },
   {
    "fieldname": "column_break_frfr",
@@ -305,99 +350,61 @@
    "label": "Eligible for LTC"
   },
   {
-   "fetch_from": "employee.grade",
-   "fieldname": "employee_grade",
-   "fieldtype": "Link",
-   "label": "Employee Grade",
-   "options": "Employee Grade",
+   "fieldname": "earnings_deductions_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "earnings",
+   "fieldtype": "Table",
+   "label": "Earnings",
+   "options": "Salary Detail"
+  },
+  {
+   "fieldname": "column_break_ifzc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "deductions",
+   "fieldtype": "Table",
+   "label": "Deductions",
+   "options": "Salary Detail"
+  },
+  {
+   "fieldname": "net_pay_detail",
+   "fieldtype": "Section Break",
+   "options": "Simple"
+  },
+  {
+   "fieldname": "total_earning",
+   "fieldtype": "Currency",
+   "label": "Total Earning",
+   "options": "currency",
    "read_only": 1
   },
   {
-   "fetch_from": "employee.date_of_joining",
-   "fieldname": "from_date",
-   "fieldtype": "Date",
-   "label": "From Date",
-   "reqd": 1
+   "fieldname": "total_deduction",
+   "fieldtype": "Currency",
+   "label": "Total Deduction",
+   "options": "currency",
+   "read_only": 1
   },
   {
-   "default": "0",
-   "fieldname": "eligible_for_conveyance_allowance",
-   "fieldtype": "Check",
-   "label": "Eligible for Conveyance Allowance"
+   "fieldname": "column_break2",
+   "fieldtype": "Column Break",
+   "width": "50%"
   },
   {
-   "default": "Lumpsum",
-   "depends_on": "eval:doc.eligible_for_conveyance_allowance",
-   "fieldname": "conveyance_allowance_method",
-   "fieldtype": "Select",
-   "label": "Payment Method(Conveyance Allowance)",
-   "options": "Lumpsum\nPercent"
-  },
-  {
-   "depends_on": "eval:doc.eligible_for_conveyance_allowance",
-   "fieldname": "conveyance_allowance",
-   "fieldtype": "Float",
-   "label": "Value (Conveyance Allowance)"
-  },
-  {
-   "default": "0",
-   "fieldname": "eligible_for_fixed_allowance",
-   "fieldtype": "Check",
-   "label": " Eligible for Fixed Allowance (Increment)"
-  },
-  {
-   "depends_on": "eval:doc.eligible_for_monthly_variable_compensation",
-   "fieldname": "mvc",
-   "fieldtype": "Float",
-   "label": "Value (MVC)"
-  },
-  {
-   "default": "0",
-   "description": "(Monthly Variable Compensation)",
-   "fieldname": "eligible_for_monthly_variable_compensation",
-   "fieldtype": "Check",
-   "label": "Eligible for MVC"
-  },
-  {
-   "default": "Lumpsum",
-   "depends_on": "eval:doc.eligible_for_monthly_variable_compensation",
-   "fieldname": "mvc_method",
-   "fieldtype": "Select",
-   "label": "Payment Method (MVC)",
-   "options": "Lumpsum\nPercent"
-  },
-  {
-   "fieldname": "currency",
-   "fieldtype": "Link",
-   "label": "Currency",
-   "options": "Currency",
-   "reqd": 1
-  },
-  {
-   "depends_on": "eval:doc.employee && doc.is_active == \"No\"",
-   "fieldname": "to_date",
-   "fieldtype": "Date",
-   "in_list_view": 1,
-   "label": "To Date"
-  },
-  {
-   "fetch_from": "employee.employment_type",
-   "fieldname": "employment_type",
-   "fieldtype": "Link",
-   "label": "Employment Type",
-   "options": "Employment Type"
-  },
-  {
-   "default": "0",
-   "fieldname": "eligible_for_hra",
-   "fieldtype": "Check",
-   "label": "Eligible for HRA"
+   "fieldname": "net_pay",
+   "fieldtype": "Currency",
+   "label": "Net Pay",
+   "options": "currency",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 1,
  "links": [],
- "modified": "2025-03-29 16:33:43.832228",
+ "modified": "2025-06-02 15:48:48.914890",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Structure",

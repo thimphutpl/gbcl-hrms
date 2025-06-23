@@ -5,25 +5,292 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "section_break_hhjj",
-  "amended_from"
- ],
- "fields": [
-  {
-   "fieldname": "section_break_hhjj",
-   "fieldtype": "Section Break"
-  },
-  {
-   "fieldname": "amended_from",
-   "fieldtype": "Link",
-   "label": "Amended From",
-   "no_copy": 1,
-   "options": "Salary Increment",
-   "print_hide": 1,
-   "read_only": 1,
-   "search_index": 1
-  }
- ],
+    "test",
+    "employee",
+    "employee_name",
+    "employment_type",
+    "employee_group",
+    "grade",
+    "date_of_reference",
+    "column_break_5",
+    "company",
+    "branch",
+    "department",
+    "designation",
+    "column_break_7",
+    "fiscal_year",
+    "month",
+    "salary_structure",
+    "old_basic",
+    "increment",
+    "new_basic",
+    "remarks",
+    "increment_entry",
+    "pay_scale",
+    "payscale_minimum",
+    "column_break_10",
+    "payscale_increment_method",
+    "payscale_increment",
+    "column_break_15",
+    "payscale_maximum",
+    "calculation_parameters",
+    "calculated_factor",
+    "column_break_20",
+    "calculated_increment",
+    "column_break_25",
+    "total_months",
+    "amended_from",
+    "minimum_months"
+   ],
+   "fields": [
+    {
+     "fieldname": "test",
+     "fieldtype": "Data",
+     "label": "Test"
+    },
+    {
+     "fieldname": "employee",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "label": "Employee",
+     "options": "Employee",
+     "reqd": 1
+    },
+    {
+     "fetch_from": "employee.employee_name",
+     "fieldname": "employee_name",
+     "fieldtype": "Read Only",
+     "label": "Employee Name"
+    },
+    {
+     "fetch_from": "employee.employment_type",
+     "fieldname": "employment_type",
+     "fieldtype": "Link",
+     "label": "Employment Type",
+     "options": "Employment Type",
+     "read_only": 1
+    },
+    {
+     "fetch_from": "employee.employee_group",
+     "fieldname": "employee_group",
+     "fieldtype": "Link",
+     "label": "Employee Group",
+     "options": "Employee Group",
+     "read_only": 1
+    },
+    {
+     "fieldname": "date_of_reference",
+     "fieldtype": "Date",
+     "label": "Date Of Reference",
+     "options": "employee.date_of_joining",
+     "read_only": 1
+    },
+    {
+     "fieldname": "column_break_5",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fetch_from": "employee.company",
+     "fieldname": "company",
+     "fieldtype": "Link",
+     "label": "Company",
+     "options": "Company",
+     "read_only": 1
+    },
+    {
+     "fetch_from": "employee.branch",
+     "fieldname": "branch",
+     "fieldtype": "Link",
+     "label": "Branch",
+     "options": "Branch",
+     "read_only": 1
+    },
+    {
+     "fetch_from": "employee.department",
+     "fieldname": "department",
+     "fieldtype": "Link",
+     "label": "Department",
+     "options": "Department",
+     "read_only": 1
+    },
+    {
+     "fieldname": "column_break_7",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "fiscal_year",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "label": "Year",
+     "options": "Fiscal Year",
+     "reqd": 1
+    },
+    {
+     "default": "January",
+     "fieldname": "month",
+     "fieldtype": "Select",
+     "in_list_view": 1,
+     "label": "Month",
+     "options": "January\nFebruary\nMarch\nApril\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+     "reqd": 1
+    },
+    {
+     "fieldname": "salary_structure",
+     "fieldtype": "Link",
+     "label": "Salary Structure",
+     "options": "Salary Structure",
+     "read_only": 1,
+     "reqd": 1
+    },
+    {
+     "default": "0.00",
+     "fieldname": "old_basic",
+     "fieldtype": "Float",
+     "in_list_view": 1,
+     "label": "Current Basic Pay",
+     "read_only": 1
+    },
+    {
+     "default": "0.00",
+     "fieldname": "increment",
+     "fieldtype": "Float",
+     "in_list_view": 1,
+     "label": "Increment"
+    },
+    {
+     "default": "0.00",
+     "fieldname": "new_basic",
+     "fieldtype": "Float",
+     "in_list_view": 1,
+     "label": "Basic Pay After Increment",
+     "read_only": 1
+    },
+    {
+     "default": "Salary Increment",
+     "fieldname": "remarks",
+     "fieldtype": "Data",
+     "label": "Remarks"
+    },
+    {
+     "fieldname": "pay_scale",
+     "fieldtype": "Section Break",
+     "label": "PAY SCALE"
+    },
+    {
+     "default": "0.00",
+     "fieldname": "payscale_minimum",
+     "fieldtype": "Float",
+     "label": "Minimum Basic Pay Limit",
+     "read_only": 1
+    },
+    {
+     "fieldname": "column_break_10",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "payscale_increment_method",
+     "fieldtype": "Data",
+     "label": "Increment Method",
+     "read_only": 1
+    },
+    {
+     "default": "0.00",
+     "fieldname": "payscale_increment",
+     "fieldtype": "Float",
+     "label": "Increment Value",
+     "read_only": 1
+    },
+    {
+     "fieldname": "column_break_15",
+     "fieldtype": "Column Break"
+    },
+    {
+     "default": "0.00",
+     "fieldname": "payscale_maximum",
+     "fieldtype": "Float",
+     "label": "Maximum Basic Pay Limit",
+     "read_only": 1
+    },
+    {
+     "fieldname": "amended_from",
+     "fieldtype": "Link",
+     "label": "Amended From",
+     "no_copy": 1,
+     "options": "Salary Increment",
+     "print_hide": 1,
+     "read_only": 1
+    },
+    {
+     "fieldname": "calculation_parameters",
+     "fieldtype": "Section Break",
+     "label": "CALCULATION PARAMETERS"
+    },
+    {
+     "fieldname": "calculated_factor",
+     "fieldtype": "Float",
+     "label": "Calculated Factor",
+     "read_only": 1
+    },
+    {
+     "fieldname": "column_break_20",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "calculated_increment",
+     "fieldtype": "Float",
+     "label": "Calculated Increment",
+     "read_only": 1
+    },
+    {
+     "fieldname": "column_break_25",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "minimum_months",
+     "fieldtype": "Float",
+     "label": "Minimum Months Required For Eligibility",
+     "read_only": 1
+    },
+    {
+     "fieldname": "total_months",
+     "fieldtype": "Float",
+     "label": "Total Months Served",
+     "read_only": 1
+    },
+    {
+     "fetch_from": "employee.grade",
+     "fieldname": "grade",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "label": "Employee Grade",
+     "options": "Employee Grade",
+     "read_only": 1
+    },
+    {
+     "fieldname": "increment_entry",
+     "fieldtype": "Link",
+     "label": "Increment Entry",
+     "options": "Increment Entry",
+     "read_only": 1
+    },
+    {
+     "fetch_from": "employee.designation",
+     "fieldname": "designation",
+     "fieldtype": "Link",
+     "label": "Designation",
+     "options": "Designation",
+     "read_only": 1
+    },
+    {
+     "fieldname": "amended_from",
+     "fieldtype": "Link",
+     "label": "Amended From",
+     "no_copy": 1,
+     "options": "Salary Increment",
+     "print_hide": 1,
+     "read_only": 1
+    }
+   ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],

@@ -26,6 +26,8 @@
   "items",
   "section_break_bfou",
   "advances",
+  "travel_miscellaneous_section",
+  "miscellaneous_item",
   "section_break_kzfj",
   "total_amount",
   "net_amount",
@@ -95,6 +97,7 @@
    "fieldtype": "Column Break"
   },
   {
+   "fetch_from": "employee.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
@@ -268,11 +271,10 @@
    "fieldtype": "Column Break"
   },
   {
-   "depends_on": "eval:doc.miscellaneous_amount",
    "fieldname": "miscellaneous_claim_reason",
    "fieldtype": "Small Text",
-   "label": "Miscellaneous Claim Reason",
-   "mandatory_depends_on": "eval:doc.miscellaneous_amount"
+   "hidden": 1,
+   "label": "Miscellaneous Claim Reason"
   },
   {
    "fieldname": "approver_detail_section",
@@ -309,12 +311,22 @@
    "no_copy": 1,
    "options": "Designation",
    "read_only": 1
+  },
+  {
+   "fieldname": "travel_miscellaneous_section",
+   "fieldtype": "Section Break",
+   "label": "Travel Miscellaneous"
+  },
+  {
+   "fieldname": "miscellaneous_item",
+   "fieldtype": "Table",
+   "options": "Travel Miscellaneous"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-05 12:32:29.990674",
+ "modified": "2025-06-04 15:20:08.795749",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Claim",

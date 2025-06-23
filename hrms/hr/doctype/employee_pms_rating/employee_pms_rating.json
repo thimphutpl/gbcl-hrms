@@ -1,0 +1,97 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-19 22:54:57.706884",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "fiscal_year",
+  "reference_type",
+  "column_break_hava",
+  "final_score",
+  "performance_evaluation",
+  "column_break_zfbe",
+  "final_score_percent",
+  "column_break_puhh",
+  "overall_rating"
+ ],
+ "fields": [
+  {
+   "allow_on_submit": 1,
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "PMS Calendar",
+   "options": "Fiscal Year",
+   "read_only": 1
+  },
+  {
+   "fieldname": "reference_type",
+   "fieldtype": "Select",
+   "label": "Reference Type",
+   "options": "Performance Evaluation\nPMS Appeal",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hava",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "final_score",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Final Score(%)",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "performance_evaluation",
+   "fieldtype": "Dynamic Link",
+   "label": "Reference Name",
+   "options": "reference_type",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_zfbe",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "final_score_percent",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Final Score Percent",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_puhh",
+   "fieldtype": "Column Break"
+  },
+  {
+   "allow_on_submit": 1,
+   "fieldname": "overall_rating",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Overall Rating",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-19 23:05:59.284419",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Employee PMS Rating",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

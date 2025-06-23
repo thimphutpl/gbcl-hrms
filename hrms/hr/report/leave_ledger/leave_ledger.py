@@ -146,8 +146,8 @@ def get_data(filters: Filters) -> list[dict]:
 		)
 		.where(
 			(Ledger.docstatus == 1)
-			& (Ledger.from_date[from_date:to_date])
-			& (Ledger.to_date[from_date:to_date])
+			# & (Ledger.from_date[from_date:to_date])
+			# & (Ledger.to_date[from_date:to_date])
 		)
 	)
 

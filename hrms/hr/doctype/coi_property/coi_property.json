@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-18 10:37:09.966262",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "property_type",
+  "property_no",
+  "property_size",
+  "property_location",
+  "registered_name"
+ ],
+ "fields": [
+  {
+   "fieldname": "property_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Type of property"
+  },
+  {
+   "fieldname": "property_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Thram/plot/house no."
+  },
+  {
+   "fieldname": "property_size",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Size/Qty"
+  },
+  {
+   "fieldname": "property_location",
+   "fieldtype": "Data",
+   "label": "Location"
+  },
+  {
+   "fieldname": "registered_name",
+   "fieldtype": "Data",
+   "label": "In whose name is the property registered? (Name and CID)"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-18 10:48:22.559720",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "COI Property",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

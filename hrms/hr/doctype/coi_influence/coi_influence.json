@@ -1,0 +1,44 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-18 10:33:31.464059",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "influence_name",
+  "influence_type",
+  "entity"
+ ],
+ "fields": [
+  {
+   "fieldname": "influence_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name"
+  },
+  {
+   "fieldname": "influence_type",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Other interests (including situations where the Declarant is able to control or influence, whether directly, or indirectly, the Entity)"
+  },
+  {
+   "fieldname": "entity",
+   "fieldtype": "Data",
+   "label": "Entity / Business / Organization"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-06-18 10:36:43.914091",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "COI Influence",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

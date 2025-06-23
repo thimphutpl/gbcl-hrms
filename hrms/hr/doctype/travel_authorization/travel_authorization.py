@@ -35,7 +35,6 @@ class TravelAuthorization(Document):
 		# validate_workflow_states(self)
 
 	def on_update(self):
-		self.check_date_overlap()
 		self.validate_duplicate_entry()
 
 	def on_cancel(self):
@@ -51,11 +50,40 @@ class TravelAuthorization(Document):
 			self.status = status
 
 	def validate_travel_dates(self):
+		self._validate_overlap_dates()
 		for item in self.get("items", []):
 			if cint(item.halt):
 				self._validate_halt_entry(item)
 			else:
 				self._validate_travel_entry(item)
+
+	def _validate_overlap_dates(self):
+		sorted_itinerary = sorted(self.items, key=lambda x: x.from_date)
+		
+		for i in range(len(sorted_itinerary)):
+			current_item = sorted_itinerary[i]
+			
+			if current_item.from_date and current_item.to_date:
+				if current_item.from_date > current_item.to_date:
+					frappe.throw(
+						f"Row {current_item.idx}: From Date cannot be after To Date",
+						title="Invalid Date Range"
+					)
+			
+			if i < len(sorted_itinerary) - 1:
+				next_item = sorted_itinerary[i + 1]
+				
+				if not (current_item.to_date and next_item.from_date):
+					continue
+				
+				required_next_date = frappe.utils.add_days(current_item.to_date, 1)
+				
+				if next_item.from_date != required_next_date:
+					frappe.throw(
+						f"Row {next_item.idx}: From Date must be exactly 1 day after Row {current_item.idx}'s To Date. "
+						f"Expected {required_next_date}, found {next_item.from_date}",
+						title="Invalid Date Sequence"
+					)
 
 	def _validate_halt_entry(self, item):
 		if not item.halt_at:
@@ -65,12 +93,12 @@ class TravelAuthorization(Document):
 			)
 		if not item.to_date:
 			frappe.throw(
-				_("Row#{0}: <b>Till Date</b> is mandatory.").format(item.idx),
+				_("Row#{0}: <b>To Date</b> is mandatory.").format(item.idx),
 				title="Invalid Date"
 			)
 		if item.to_date < item.from_date:
 			frappe.throw(
-				_("Row#{0}: <b>Till Date</b> cannot be earlier than <b>From Date</b>.").format(item.idx),
+				_("Row#{0}: <b>To Date</b> cannot be earlier than <b>From Date</b>.").format(item.idx),
 				title="Invalid Date"
 			)
 
@@ -81,28 +109,6 @@ class TravelAuthorization(Document):
 				title="Missing Travel Information"
 			)
 		item.to_date = item.from_date  # Ensuring `to_date` is set for non-halt cases
-
-	def check_date_overlap(self):
-		overlap_query = """
-			SELECT t1.idx, t2.idx AS overlap_idx
-			FROM `tabTravel Authorization Item` t1
-			JOIN `tabTravel Authorization Item` t2
-			ON t1.parent = t2.parent
-			AND t1.name != t2.name
-			AND t1.from_date <= t2.to_date
-			AND t1.to_date >= t2.from_date
-			WHERE t1.parent = %s
-		"""
-
-		overlaps = frappe.db.sql(overlap_query, (self.name,), as_dict=True)
-		if overlaps:
-			first_overlap = overlaps[0]
-			frappe.throw(
-				_("Row#{}: Dates are overlapping with dates in Row#{}").format(
-					first_overlap["idx"], first_overlap["overlap_idx"]
-				),
-				title="Date Overlap Detected"
-			)
 
 	def validate_duplicate_entry(self):
 		duplicate_query = """

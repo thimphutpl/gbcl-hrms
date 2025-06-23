@@ -117,8 +117,10 @@ def make_travel_adjustment(source_name, target_doc=None):
         {
             "Travel Authorization": {
                 "doctype": "Travel Adjustment",
+                
                 "field_map": {
-                    "name": "travel_authorization"
+                    "name": "travel_authorization",
+                    "employee":"employee",
                 },
                 "validation": {
                     "docstatus": ["=", 1],

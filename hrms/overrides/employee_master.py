@@ -10,6 +10,22 @@ from erpnext.setup.doctype.employee.employee import Employee
 
 
 class EmployeeMaster(Employee):
+	# def autoname(self):
+	# 	# Added by Dawa Tshering on 25/12/2024
+	# 	if self.old_employee_id:
+	# 		self.employee = self.name = self.old_employee_id
+	# 	else:
+	# 		if not self.date_of_joining:
+	# 			frappe.throw(_("Date of Joining is required to generate a new Employee ID."))
+	# 		try:
+	# 			year_month_day = self.date_of_joining[:4] + self.date_of_joining[5:7]
+	# 		except IndexError:
+	# 			frappe.throw(_("Date of Joining must be in YYYY-MM-DD format."))
+			
+	# 		unique_suffix = make_autoname('EMP.##')[3:]
+	# 		new_name = f"{year_month_day}{unique_suffix}"
+	# 		self.employee = self.name = new_name
+
 	def autoname(self):
 		# Added by Dawa Tshering on 25/12/2024
 		if self.old_employee_id:
@@ -17,8 +33,15 @@ class EmployeeMaster(Employee):
 		else:
 			if not self.date_of_joining:
 				frappe.throw(_("Date of Joining is required to generate a new Employee ID."))
+			
+			# Convert datetime to string if it's not already
+			if isinstance(self.date_of_joining, str):
+				date_str = self.date_of_joining
+			else:
+				date_str = self.date_of_joining.strftime("%Y-%m-%d")
+			
 			try:
-				year_month_day = self.date_of_joining[:4] + self.date_of_joining[5:7]
+				year_month_day = date_str[:4] + date_str[5:7]
 			except IndexError:
 				frappe.throw(_("Date of Joining must be in YYYY-MM-DD format."))
 			

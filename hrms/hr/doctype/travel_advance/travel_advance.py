@@ -40,6 +40,7 @@ class TravelAdvance(Document):
 	def post_journal_entry(self):
 		advance_account = frappe.db.get_value("Company", self.company, "travel_advance_account")
 		bank_account = frappe.db.get_value("Branch", self.branch, "expense_bank_account")
+		
 
 		if not advance_account:
 			frappe.throw(

@@ -956,7 +956,7 @@ class PayrollEntry(Document):
 				"reference_name"				: self.name,
 				"salary_component"				: "Net Pay"
 			})
-				
+		# frappe.throw(frappe.as_json(posting))
 		if posting:
 			jv_name, v_title = None, ""
 			for i in posting:

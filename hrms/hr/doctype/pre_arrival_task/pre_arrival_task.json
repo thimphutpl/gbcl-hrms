@@ -1,0 +1,157 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-01 23:00:08.002909",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "items",
+  "orientation",
+  "tour_supervisor",
+  "communications_supervisor",
+  "technology_and_equipment",
+  "workspace_supervisor",
+  "facility_supervisor",
+  "attendance_supervisor",
+  "financial_procedures",
+  "benefits_employee",
+  "new_hire_training",
+  "supervisor_information",
+  "performance",
+  "gmc_policies",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "items",
+   "fieldtype": "Table",
+   "options": "Pre Arrival Tasks Item"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "orientation",
+   "fieldtype": "Table",
+   "label": "Introductions - Supervisor",
+   "options": "First Day Orientation Item"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Pre Arrival Task",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "tour_supervisor",
+   "fieldtype": "Table",
+   "label": "Tour Supervisor/Delegation",
+   "options": "Tour Supervisor"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "communications_supervisor",
+   "fieldtype": "Table",
+   "label": "Communications Supervisor",
+   "options": "Communications Supervisor"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "technology_and_equipment",
+   "fieldtype": "Table",
+   "label": "Technology and Equipment",
+   "options": "Technology And Equipment"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "workspace_supervisor",
+   "fieldtype": "Table",
+   "label": "Workspace Supervisor",
+   "options": "Workspace Supervisor"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "facility_supervisor",
+   "fieldtype": "Table",
+   "label": "Facility Supervisor",
+   "options": "Facility Supervisor"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "attendance_supervisor",
+   "fieldtype": "Table",
+   "label": "Attendance Supervisor",
+   "options": "Attendance Supervisor"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "financial_procedures",
+   "fieldtype": "Table",
+   "label": "Financial Procedures",
+   "options": "Financial Procedures"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "benefits_employee",
+   "fieldtype": "Table",
+   "label": "Benefits Employee",
+   "options": "Benefits Employee"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "new_hire_training",
+   "fieldtype": "Table",
+   "label": "New Hire Training",
+   "options": "New Hiring Training"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "supervisor_information",
+   "fieldtype": "Table",
+   "label": "Supervisor Information",
+   "options": "Supervisor Information"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "performance",
+   "fieldtype": "Table",
+   "label": "Performance ",
+   "options": "Performance"
+  },
+  {
+   "allow_bulk_edit": 1,
+   "fieldname": "gmc_policies",
+   "fieldtype": "Table",
+   "label": "GMC Policies",
+   "options": "GMC Policies"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-06-08 21:26:07.016553",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Pre Arrival Task",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

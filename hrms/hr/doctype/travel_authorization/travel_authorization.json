@@ -34,7 +34,8 @@
   "company",
   "status",
   "column_break_stkr",
-  "amended_from"
+  "amended_from",
+  "workflow_state"
  ],
  "fields": [
   {
@@ -94,6 +95,7 @@
    "reqd": 1
   },
   {
+   "fetch_from": "employee.company",
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
@@ -222,12 +224,18 @@
    "no_copy": 1,
    "options": "Designation",
    "read_only": 1
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "label": "Workflow State",
+   "options": "Workflow State"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-04 12:00:47.591600",
+ "modified": "2025-05-20 08:21:58.688322",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",

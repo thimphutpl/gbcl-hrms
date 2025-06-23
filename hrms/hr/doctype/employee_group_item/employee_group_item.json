@@ -1,0 +1,46 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-05-29 15:57:45.350632",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+    "test"
+   ],
+   "fields": [
+      {
+       "fieldname": "leave_type",
+       "fieldtype": "Link",
+       "in_list_view": 1,
+       "label": "Leave Type",
+       "options": "Leave Type",
+       "reqd": 1
+      },
+      {
+       "fieldname": "credits_per_month",
+       "fieldtype": "Float",
+       "in_list_view": 1,
+       "label": "Leave Credits/Month",
+       "precision": "2"
+      },
+      {
+       "fieldname": "credits_per_year",
+       "fieldtype": "Float",
+       "in_list_view": 1,
+       "label": "Leave Credits/Year"
+      }
+     ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2025-05-29 15:57:45.350632",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Employee Group Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -1,0 +1,339 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-06-18 09:41:28.668584",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "section_break_0svl",
+  "name_of_gmc",
+  "date",
+  "column_break_oetn",
+  "cid",
+  "explanatory_notes_section",
+  "gmc_policies",
+  "policy_confirmation_section",
+  "read_policy",
+  "agree_to_declare",
+  "notify_chro",
+  "declaration_of_conflict_status_section",
+  "actual_conflict",
+  "interest_in_land",
+  "has_conflict",
+  "owns_land",
+  "connected_conflict",
+  "connected_land",
+  "section_break_twsd",
+  "coi_entity_position",
+  "coi_shareholding",
+  "coi_influence",
+  "additional_details",
+  "coi_property",
+  "interest_in_land_in_the_gmc_section",
+  "conflict_of_interest_entity_position_column",
+  "coi_entity_positions",
+  "shareholding",
+  "influence",
+  "additional_detail",
+  "property",
+  "amended_from",
+  "actual_or_potential_conflicts_of_interest_section",
+  "conflict_of_interest_entity_position",
+  "table_baqa",
+  "table_hqvr",
+  "part_3_additional_detail",
+  "conflict_of_interest_property",
+  "connected_persons_interest_in_land_within_gmc_section",
+  "table_lvcl",
+  "table_vvqi",
+  "table_bpdf",
+  "part_3_additional_details",
+  "table_kmop"
+ ],
+ "fields": [
+  {
+   "fieldname": "section_break_0svl",
+   "fieldtype": "Section Break",
+   "label": "Personal Info"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Conflict of Interest Declaration",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  },
+  {
+   "fieldname": "name_of_gmc",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Name of GMC Team Member / RGoB Member"
+  },
+  {
+   "fieldname": "cid",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CID/Passport"
+  },
+  {
+   "fieldname": "date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Date"
+  },
+  {
+   "fieldname": "explanatory_notes_section",
+   "fieldtype": "Section Break",
+   "label": "Explanatory Notes"
+  },
+  {
+   "fieldname": "gmc_policies",
+   "fieldtype": "Long Text",
+   "label": "GMC Policy"
+  },
+  {
+   "fieldname": "policy_confirmation_section",
+   "fieldtype": "Section Break",
+   "label": "Policy Confirmation"
+  },
+  {
+   "default": "0",
+   "fieldname": "read_policy",
+   "fieldtype": "Check",
+   "label": "I have read and understood the GMC Authority Conflict of Interest Policy"
+  },
+  {
+   "default": "0",
+   "fieldname": "agree_to_declare",
+   "fieldtype": "Check",
+   "label": "I will declare conflict when it arises"
+  },
+  {
+   "default": "0",
+   "fieldname": "notify_chro",
+   "fieldtype": "Check",
+   "label": "I will notify CHRO if any info changes"
+  },
+  {
+   "fieldname": "declaration_of_conflict_status_section",
+   "fieldtype": "Section Break",
+   "label": "Declaration of Conflict Status"
+  },
+  {
+   "default": "0",
+   "fieldname": "actual_conflict",
+   "fieldtype": "Check",
+   "label": "I do not have any actual or potential Conflicts of Interest that affect me"
+  },
+  {
+   "default": "0",
+   "fieldname": "interest_in_land",
+   "fieldtype": "Check",
+   "label": "I do not own or have any interest in Land in the GMC"
+  },
+  {
+   "fieldname": "has_conflict",
+   "fieldtype": "Select",
+   "label": "I have an actual or potential Conflict(s) of Interest that affect(s) me. Please proceed to fill in Part II of this form",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "owns_land",
+   "fieldtype": "Select",
+   "label": "I own or have any interest in Land in the GMC.",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "connected_conflict",
+   "fieldtype": "Select",
+   "label": "There is actual or potential Conflict(s) of Interest that affect(s) a Connected Person",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "connected_land",
+   "fieldtype": "Select",
+   "label": "A Connected Person(s) owns or has interest in Land in the GMC",
+   "options": "\nYes\nNo"
+  },
+  {
+   "depends_on": "eval:doc.has_conflict==\"Yes\"",
+   "fieldname": "section_break_twsd",
+   "fieldtype": "Section Break",
+   "label": "Actual or Potential Conflict(s) of Interest"
+  },
+  {
+   "depends_on": "eval:doc.has_conflict==\"Yes\"",
+   "fieldname": "coi_entity_position",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Entity Position",
+   "options": "COI Entity Position"
+  },
+  {
+   "depends_on": "eval:doc.has_conflict==\"Yes\"",
+   "fieldname": "coi_shareholding",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Shareholding",
+   "options": "COI Shareholding"
+  },
+  {
+   "depends_on": "eval:doc.has_conflict==\"Yes\"",
+   "fieldname": "coi_influence",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Influence",
+   "options": "COI Influence"
+  },
+  {
+   "depends_on": "eval:doc.has_conflict==\"Yes\"",
+   "fieldname": "coi_property",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Property",
+   "options": "COI Property"
+  },
+  {
+   "depends_on": "eval:doc.owns_land==\"Yes\"",
+   "fieldname": "interest_in_land_in_the_gmc_section",
+   "fieldtype": "Section Break",
+   "label": "Interest in Land in the GMC"
+  },
+  {
+   "fieldname": "coi_entity_positions",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Entity Position",
+   "options": "COI Entity Position"
+  },
+  {
+   "fieldname": "conflict_of_interest_entity_position_column",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "shareholding",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Shareholding",
+   "options": "COI Shareholding"
+  },
+  {
+   "fieldname": "influence",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Influence",
+   "options": "COI Influence"
+  },
+  {
+   "fieldname": "property",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Property",
+   "options": "COI Property"
+  },
+  {
+   "fieldname": "column_break_oetn",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "additional_details",
+   "fieldtype": "Small Text",
+   "label": "If more space is needed, please provide additional details on a separate page."
+  },
+  {
+   "fieldname": "additional_detail",
+   "fieldtype": "Small Text",
+   "label": "If more space is needed, please provide additional details on a separate page."
+  },
+  {
+   "depends_on": "eval:doc.connected_conflict==\"Yes\"",
+   "fieldname": "actual_or_potential_conflicts_of_interest_section",
+   "fieldtype": "Section Break",
+   "label": "Actual or Potential Conflict(s) of Interest"
+  },
+  {
+   "fieldname": "conflict_of_interest_entity_position",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Entity Position",
+   "options": "COI Entity Position"
+  },
+  {
+   "fieldname": "table_hqvr",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Influence",
+   "options": "COI Influence"
+  },
+  {
+   "fieldname": "table_baqa",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Shareholding",
+   "options": "COI Shareholding"
+  },
+  {
+   "fieldname": "part_3_additional_detail",
+   "fieldtype": "Small Text",
+   "label": "If more space is needed, please provide additional details on a separate page."
+  },
+  {
+   "fieldname": "conflict_of_interest_property",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Property",
+   "options": "COI Property"
+  },
+  {
+   "fieldname": "connected_persons_interest_in_land_within_gmc_section",
+   "fieldtype": "Section Break",
+   "label": "Connected Person(s) Interest in Land within GMC"
+  },
+  {
+   "fieldname": "table_lvcl",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Entity Position",
+   "options": "COI Entity Position"
+  },
+  {
+   "fieldname": "table_vvqi",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Shareholding",
+   "options": "COI Shareholding"
+  },
+  {
+   "fieldname": "table_bpdf",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Influence",
+   "options": "COI Influence"
+  },
+  {
+   "fieldname": "part_3_additional_details",
+   "fieldtype": "Small Text",
+   "label": "If more space is needed, please provide additional details on a separate page."
+  },
+  {
+   "fieldname": "table_kmop",
+   "fieldtype": "Table",
+   "label": "Conflict Of Interest Property",
+   "options": "COI Property"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-06-18 12:10:11.346242",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Conflict of Interest Declaration",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

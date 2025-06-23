@@ -16,7 +16,9 @@
   "fixed_allowance",
   "gis",
   "sws",
+  "hra",
   "eligible_for_overtime",
+  "one_off_fixed_payment",
   "section_break_ozeh",
   "lower_limit",
   "column_break_xjwr",
@@ -144,11 +146,21 @@
    "fieldtype": "Link",
    "label": "Next Promotion Grade",
    "options": "Employee Grade"
+  },
+  {
+   "fieldname": "hra",
+   "fieldtype": "Currency",
+   "label": "HRA"
+  },
+  {
+   "fieldname": "one_off_fixed_payment",
+   "fieldtype": "Currency",
+   "label": "One off FIxed Payment"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-02-17 12:45:05.847365",
+ "modified": "2025-05-23 17:57:21.065881",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Grade",

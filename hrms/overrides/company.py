@@ -8,7 +8,6 @@ from frappe import _
 
 from erpnext.accounts.doctype.account.account import get_account_currency
 
-
 def make_company_fixtures(doc, method=None):
 	if not frappe.flags.country_change:
 		return

@@ -56,6 +56,8 @@
   "unlink_payment_on_cancellation_of_employee_advance",
   "approver_settings_tab",
   "hr_manager",
+  "hr_approver",
+  "hrgm",
   "column_break_zguo",
   "hr_manager_name",
   "separation_clearance_approver_section",
@@ -467,13 +469,25 @@
    "fieldname": "general_manager_name",
    "fieldtype": "Data",
    "label": "General Manager Name"
+  },
+  {
+   "fieldname": "hr_approver",
+   "fieldtype": "Link",
+   "label": "HR Approver",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "hrgm",
+   "fieldtype": "Link",
+   "label": "HRGM",
+   "options": "Employee"
   }
  ],
  "icon": "fa fa-cog",
  "idx": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-01 11:50:52.693204",
+ "modified": "2025-05-16 13:07:18.678322",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "HR Settings",
