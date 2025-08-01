@@ -8,6 +8,7 @@
  "field_order": [
   "from_date",
   "travel_from",
+  "purpose",
   "column_break_cwok",
   "halt",
   "return_today",
@@ -93,12 +94,18 @@
    "fieldtype": "Check",
    "label": "Is Last Day",
    "read_only": 1
+  },
+  {
+   "fieldname": "purpose",
+   "fieldtype": "Long Text",
+   "label": "Purpose",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-02-06 17:07:26.405044",
+ "modified": "2025-08-01 14:33:47.175830",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization Item",
