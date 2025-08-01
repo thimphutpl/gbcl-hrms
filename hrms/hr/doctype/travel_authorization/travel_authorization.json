@@ -24,6 +24,8 @@
   "mode_of_travel",
   "section_break_tvvk",
   "items",
+  "section_break_acgn",
+  "remarks",
   "approver_detial_section",
   "approver",
   "column_break_aysp",
@@ -222,12 +224,21 @@
    "no_copy": 1,
    "options": "Designation",
    "read_only": 1
+  },
+  {
+   "fieldname": "section_break_acgn",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Data",
+   "label": "Remarks"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-18 11:18:30.385465",
+ "modified": "2025-05-01 19:39:47.145851",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",
