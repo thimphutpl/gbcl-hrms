@@ -83,8 +83,8 @@ class EmployeeSeparationClearance(Document):
 			frappe.throw("Finance and Investment has not granted clearance.")
 		# if self.ams_clearance == 0:
 		# 	frappe.throw("Asset Management Section has not granted clearance.")
-		# if self.icthr_clearance == 0:
-		# 	frappe.throw("Human Resource & Administration has not granted clearance.")
+		if self.icthr_clearance == 0:
+			frappe.throw("Human Resource & Administration has not granted clearance.")
 		# if self.iad_clearance == 0:
 		# 	frappe.throw("Internal Audit has not granted clearance.")
 		if self.ada_clearance == 0:
@@ -148,9 +148,18 @@ class EmployeeSeparationClearance(Document):
 			frappe.throw("Accounts & Finance clearance approver is not set in HR Settings")
 		procurement_officiate = get_officiating_employee(frappe.db.get_single_value("HR Settings", "procurement"))
 		if procurement_officiate:
-			self.ada = frappe.db.get_value("Employee",procurement_officiate[0].officiate,"user_id")
+			self.icthr = frappe.db.get_value("Employee",procurement_officiate[0].officiate,"user_id")
 		else:
-			self.ada = frappe.db.get_value("Employee",frappe.db.get_single_value("HR Settings", "procurement"),"user_id")
+			self.icthr = frappe.db.get_value("Employee",frappe.db.get_single_value("HR Settings", "procurement"),"user_id")
+
+		#--------------------------- Asset Declaration --------------------------|
+		if not frappe.db.get_single_value("HR Settings", "asset"):
+			frappe.throw("Accounts & Finance clearance approver is not set in HR Settings")
+		asset_declaration = get_officiating_employee(frappe.db.get_single_value("HR Settings", "asset"))
+		if asset_declaration:
+			self.ada = frappe.db.get_value("Employee",asset_declaration[0].officiate,"user_id")
+		else:
+			self.ada = frappe.db.get_value("Employee",frappe.db.get_single_value("HR Settings", "asset"),"user_id")
 
 		#--------------------------- General Manager --------------------------|
 		if not frappe.db.get_single_value("HR Settings", "general_manager"):

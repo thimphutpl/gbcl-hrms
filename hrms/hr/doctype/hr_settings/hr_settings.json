@@ -62,10 +62,12 @@
   "general_manager",
   "accounts_finance",
   "procurement",
+  "asset",
   "column_break_wguy",
   "general_manager_name",
   "accounts_finance_name",
   "procurement_name",
+  "asset_declaration_name",
   "notification_setting_tab",
   "enote_section",
   "enote_approval_notification",
@@ -470,13 +472,25 @@
    "fieldtype": "Data",
    "label": "General Manager Name",
    "read_only": 1
+  },
+  {
+   "fieldname": "asset",
+   "fieldtype": "Link",
+   "label": "Asset Declaration Administrator",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "asset_declaration_name",
+   "fieldtype": "Data",
+   "label": "Asset Declaration Administrator",
+   "read_only": 1
   }
  ],
  "icon": "fa fa-cog",
  "idx": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-04-16 10:41:46.938772",
+ "modified": "2025-08-14 10:22:56.806897",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "HR Settings",

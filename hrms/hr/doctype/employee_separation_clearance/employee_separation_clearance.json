@@ -27,6 +27,9 @@
   "ada",
   "ada_clearance",
   "ada_remarks",
+  "gm",
+  "gm_clearance",
+  "gm_remarks",
   "column_break_29",
   "ams",
   "ams_clearance",
@@ -57,7 +60,7 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
-   "label": "Employee ID",
+   "label": "Employee",
    "options": "Employee"
   },
   {
@@ -243,6 +246,7 @@
    "default": "0",
    "fieldname": "iad_clearance",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Clearance Acquired(Internal Audit Division)",
    "mandatory_depends_on": "eval:frappe.session.user == doc.iad",
    "read_only": 1
@@ -303,6 +307,7 @@
    "default": "0",
    "fieldname": "pc_clearance",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Clearance Acquired(Procurement and Contracts)",
    "mandatory_depends_on": "eval:frappe.session.user == doc.pc",
    "read_only": 1
@@ -319,6 +324,7 @@
    "default": "0",
    "fieldname": "ams_clearance",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Clearance Acquired (Clearance Acquired (Store & Procurement Division))",
    "mandatory_depends_on": "eval:doc.ams==frappe.session.user",
    "read_only": 1
@@ -332,12 +338,35 @@
   {
    "fieldname": "column_break_edas",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "gm",
+   "fieldtype": "Link",
+   "label": "General Manager",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.gm==frappe.session.user",
+   "fieldname": "gm_remarks",
+   "fieldtype": "Small Text",
+   "label": "Genaral Manager Remarks",
+   "mandatory_depends_on": "eval:frappe.session.user == doc.gm",
+   "read_only_depends_on": "eval:frappe.session.user != doc.gm"
+  },
+  {
+   "default": "0",
+   "fieldname": "gm_clearance",
+   "fieldtype": "Check",
+   "label": "Clearance Acquired(General Manager)",
+   "mandatory_depends_on": "eval:frappe.session.user == doc.gm",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-20 10:29:47.579044",
+ "modified": "2025-08-14 10:40:34.158984",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Separation Clearance",
