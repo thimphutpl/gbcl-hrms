@@ -105,10 +105,13 @@ class LeaveAllocation(Document):
 				(self.new_leaves_allocated - self.get_existing_leave_count()),
 				self.precision("new_leaves_allocated"),
 			)
+			from datetime import datetime, timedelta
+			today = datetime.today()
+			from_date=today.replace(day=1)
 
 			args = {
 				"leaves": leaves_to_be_added,
-				"from_date": self.from_date,
+				"from_date": from_date,
 				"to_date": self.to_date,
 				"is_carry_forward": 0,
 			}
@@ -291,7 +294,7 @@ class LeaveAllocation(Document):
 					title=_("Over Allocation"),
 				)
 
-	def create_leave_ledger_entry(self, submit=True):
+	def create_leave_ledger_entry(self, submit=True, is_adjusted_leave = 0, leave_adjustment = None):
 		if self.unused_leaves:
 			expiry_days = frappe.db.get_value(
 				"Leave Type", self.leave_type, "expire_carry_forwarded_leaves_after_days"
@@ -302,6 +305,8 @@ class LeaveAllocation(Document):
 				from_date=self.from_date,
 				to_date=min(getdate(end_date), getdate(self.to_date)),
 				is_carry_forward=1,
+				is_adjusted_leave = is_adjusted_leave,
+				leave_adjustment_id = leave_adjustment
 			)
 			create_leave_ledger_entry(self, args, submit)
 
@@ -310,6 +315,8 @@ class LeaveAllocation(Document):
 			from_date=self.from_date,
 			to_date=self.to_date,
 			is_carry_forward=0,
+			is_adjusted_leave = is_adjusted_leave,
+			leave_adjustment_id = leave_adjustment
 		)
 		create_leave_ledger_entry(self, args, submit)
 

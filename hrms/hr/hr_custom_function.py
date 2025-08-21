@@ -132,3 +132,108 @@ def get_officiating_employee(employee):
 			else:
 				flag = False
 	return officiate
+
+
+def post_earned_leaves():	
+	if not getdate(frappe.utils.nowdate()) == getdate(get_first_day(frappe.utils.nowdate())):
+		
+		return 0
+	
+	date = add_days(frappe.utils.nowdate(), -20)
+	start = get_first_day(date);
+	end = get_last_day(date);
+	from datetime import datetime, timedelta,date
+	today = datetime.today()
+	first_day_of_year = datetime(today.year, 1, 1)
+	last_day_of_year = datetime(today.year, 12, 31)	
+	employees = frappe.db.sql("select name, employee_name, date_of_joining from `tabEmployee` where status = 'Active'", as_dict=True)
+	
+	for e in employees:
+		# print(e.name)
+		if cint(date_diff(end, getdate(e.date_of_joining))) > 14:
+			employee_name = e.name
+			employee_full_name = e.employee_name
+			leave_type = "Earned Leave"
+			from_date = first_day_of_year.strftime(f'%Y-%m-%d')
+			to_date = last_day_of_year.strftime(f'%Y-%m-%d')
+			existing_allocation = frappe.db.exists("Leave Allocation", {
+    			"employee": employee_name,
+    			"leave_type": leave_type,
+    			"from_date": from_date,
+    			"to_date": to_date,
+    			"docstatus": 1  # Check for submitted documents only
+			})
+
+			max_leaves_allowed = flt(
+				frappe.db.get_value("Leave Type", leave_type, "max_leaves_allowed")
+			)
+
+			if existing_allocation:
+				current_year = datetime.now().year
+				first_day = date(current_year, 1, 1).isoformat()
+				last_day = date(current_year, 12, 31).isoformat()
+				
+
+				la = frappe.get_doc("Leave Allocation", existing_allocation)
+				leave_sum = frappe.get_all(
+											'Leave Ledger Entry',
+											filters={
+        											'leave_type': 'Earned Leave',
+        											'employee': employee_name,
+        											'docstatus': 1,
+        											'from_date': ['between', [first_day, last_day]],
+        											'to_date': ['between', [first_day, last_day]]
+    												},
+											fields=['SUM(leaves) as Leave_sum'],
+											as_list=True
+											)
+
+# Access the result
+				if leave_sum:
+					total_leaves = leave_sum[0][0]
+					#frappe.throw(str(total_leaves))
+					print(f"Total Leaves: {total_leaves}")
+				else:
+					print("No leaves found.")
+				if flt(total_leaves) + flt(2.5) <= max_leaves_allowed:
+					la.new_leaves_allocated = flt(la.new_leaves_allocated) + flt(2.5)
+					la.save()
+					frappe.db.commit()
+					print(f"Leave Allocation updated successfully for {employee_name}!")
+				# else:
+				# 	frappe.throw(str(la.new_leaves_allocated+2.5))
+			else:
+    
+				la = frappe.new_doc("Leave Allocation")
+				la.employee = employee_name
+				la.employee_name = employee_full_name
+				la.leave_type = leave_type
+				la.from_date = from_date
+				la.to_date = to_date
+				la.carry_forward = cint(1)
+				la.new_leaves_allocated = flt(2.5)
+				la.submit()
+				print(f"Leave Allocation submitted successfully for {employee_name}!")
+				
+			# la = frappe.new_doc("Leave Allocation")
+			# la.employee = e.name
+			# la.employee_name = e.employee_name
+			# la.leave_type = "Earned Leave"
+			# la.from_date = first_day_of_year.strftime(f'%Y-%m-%d')
+			# la.to_date = last_day_of_year.strftime(f'%Y-%m-%d')
+			# la.carry_forward = cint(1)
+			# la.new_leaves_allocated = flt(2.5)
+			# la.submit()
+			#print(f"Leave Allocation submitted successfully for {e.name}!")
+		else:
+			pass
+
+#function to get the difference between two dates
+@frappe.whitelist()
+def get_date_diff(start_date, end_date):
+	if start_date is None:
+		return 0
+	elif end_date is None:
+		return 0
+	else:	
+		return frappe.utils.data.date_diff(end_date, start_date) + 1
