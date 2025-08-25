@@ -159,7 +159,7 @@
    "type": "Link"
   }
  ],
- "modified": "2025-05-30 17:06:56.259687",
+ "modified": "2025-07-25 13:11:26.813634",
  "modified_by": "pralad.rai@thimphutechpark.bt",
  "module": "Payroll",
  "name": "Salary Payout",
@@ -169,7 +169,7 @@
  "public": 1,
  "quick_lists": [],
  "roles": [],
- "sequence_id": 20.0,
+ "sequence_id": 18.0,
  "shortcuts": [
   {
    "color": "Red",
