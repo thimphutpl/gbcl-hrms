@@ -7,7 +7,7 @@ from hrms.controllers.employee_boarding_controller import EmployeeBoardingContro
 
 import frappe
 from frappe.model.mapper import get_mapped_doc
-from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
+# from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
 from frappe.utils import today
 
 class EmployeeSeparation(EmployeeBoardingController):

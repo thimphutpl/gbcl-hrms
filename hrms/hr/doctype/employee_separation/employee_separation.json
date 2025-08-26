@@ -64,13 +64,6 @@
   },
   {
    "allow_on_submit": 1,
-   "fieldname": "boarding_status",
-   "fieldtype": "Select",
-   "label": "Status",
-   "options": "\nPending\nIn Process\nCompleted"
-  },
-  {
-   "allow_on_submit": 1,
    "default": "0",
    "fieldname": "notify_users_by_email",
    "fieldtype": "Check",
@@ -264,11 +257,17 @@
    "hidden": 1,
    "label": "Clearance Aquired",
    "read_only": 1
+  },
+  {
+   "fieldname": "boarding_status",
+   "fieldtype": "Select",
+   "label": "Status",
+   "options": "\nPending\nIn Progress\nCompleted"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-01 16:13:19.039085",
+ "modified": "2025-08-25 16:31:00.322141",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Separation",
