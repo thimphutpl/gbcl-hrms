@@ -13,6 +13,7 @@
   "boarding_status",
   "notify_users_by_email",
   "column_break_7",
+  "posting_date",
   "types_of_separation",
   "serve_notice_period",
   "employee_separation_template",
@@ -60,7 +61,7 @@
    "fieldname": "resignation_letter_date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Resignation Letter Date"
+   "label": "Relieving Letter Date"
   },
   {
    "allow_on_submit": 1,
@@ -263,11 +264,17 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "\nPending\nIn Progress\nCompleted"
+  },
+  {
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Posting Date"
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2025-08-25 16:31:00.322141",
+ "modified": "2025-08-26 14:40:15.123484",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Separation",
