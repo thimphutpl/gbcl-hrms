@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "LAJ.YY.MM.###",
+ "creation": "2025-08-13 15:49:54.819938",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+    "adjustment_date",
+    "column_break_2",
+    "leave_type",
+    "section_break_4",
+    "branch",
+    "column_break_6",
+    "get_employees",
+    "section_break_8",
+    "items",
+    "amended_from"
+   ],
+   "fields": [
+    {
+     "fieldname": "adjustment_date",
+     "fieldtype": "Date",
+     "in_list_view": 1,
+     "label": "Adjustment Date",
+     "reqd": 1
+    },
+    {
+     "fieldname": "column_break_2",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "leave_type",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "label": "Leave Type",
+     "options": "Leave Type",
+     "reqd": 1
+    },
+    {
+     "fieldname": "section_break_4",
+     "fieldtype": "Section Break"
+    },
+    {
+     "fieldname": "branch",
+     "fieldtype": "Link",
+     "label": "Branch",
+     "options": "Branch"
+    },
+    {
+     "fieldname": "column_break_6",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "get_employees",
+     "fieldtype": "Button",
+     "label": "Get Employees"
+    },
+    {
+     "fieldname": "section_break_8",
+     "fieldtype": "Section Break"
+    },
+    {
+     "allow_bulk_edit": 1,
+     "fieldname": "items",
+     "fieldtype": "Table",
+     "options": "Leave Adjustment Item",
+     "reqd": 1
+    },
+    {
+     "fieldname": "amended_from",
+     "fieldtype": "Link",
+     "label": "Amended From",
+     "no_copy": 1,
+     "options": "Leave Adjustment",
+     "print_hide": 1,
+     "read_only": 1
+    }
+   ],
+    "index_web_pages_for_search": 1,
+    "is_submittable": 1,
+    "links": [],
+    "modified": "2025-08-13 15:51:13.497019",
+    "modified_by": "Administrator",
+    "module": "HR",
+    "name": "Leave Adjustment",
+    "naming_rule": "Expression (old style)",
+    "owner": "Administrator",
+    "permissions": [
+    {
+    "create": 1,
+    "delete": 1,
+    "email": 1,
+    "export": 1,
+    "print": 1,
+    "read": 1,
+    "report": 1,
+    "role": "System Manager",
+    "share": 1,
+    "submit": 1,
+    "write": 1
+    }
+    ],
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": []
+}
