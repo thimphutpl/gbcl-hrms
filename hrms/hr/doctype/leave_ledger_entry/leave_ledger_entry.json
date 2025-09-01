@@ -18,6 +18,8 @@
   "is_carry_forward",
   "is_expired",
   "is_lwp",
+  "is_adjusted_leave",
+  "leave_adjustment_id",
   "amended_from"
  ],
  "fields": [
@@ -121,6 +123,18 @@
    "options": "Company",
    "read_only": 1,
    "reqd": 1
+  },
+  {
+   "fieldname": "leave_adjustment_id",
+   "fieldtype": "Link",
+   "label": "Leave Adjustment ID",
+   "options": "Leave Adjustment"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_adjusted_leave",
+   "fieldtype": "Check",
+   "label": "Is Adjusted Leave"
   }
  ],
  "in_create": 1,
