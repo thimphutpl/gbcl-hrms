@@ -121,7 +121,7 @@ frappe.ui.form.on("Payroll Entry", {
 	create_salary_slips: function (frm) {
 		frm.call({
 			doc: frm.doc,
-			method: "run_doc_method",
+			// method: "run_doc_method",
 			args: {
 				method: "create_salary_slips",
 				dt: "Payroll Entry",
