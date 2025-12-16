@@ -1,0 +1,107 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:company",
+ "creation": "2025-12-11 15:33:09.258548",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "dk_bank_payment_section",
+  "verifier_email",
+  "column_break_cden",
+  "approver_email",
+  "swift_payment_instruction_section",
+  "sp_verifier_email",
+  "column_break_lvpw",
+  "sp_approver_email"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Company",
+   "options": "Company",
+   "unique": 1
+  },
+  {
+   "fieldname": "dk_bank_payment_section",
+   "fieldtype": "Section Break",
+   "label": "DK Bank Payment"
+  },
+  {
+   "fieldname": "verifier_email",
+   "fieldtype": "Data",
+   "label": "Verifier Email",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_cden",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "approver_email",
+   "fieldtype": "Data",
+   "label": "Approver Email",
+   "options": "User"
+  },
+  {
+   "fieldname": "swift_payment_instruction_section",
+   "fieldtype": "Section Break",
+   "label": "Swift Payment Instruction"
+  },
+  {
+   "fieldname": "sp_verifier_email",
+   "fieldtype": "Data",
+   "label": "Verifier Email",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_lvpw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "sp_approver_email",
+   "fieldtype": "Data",
+   "label": "Approver Email",
+   "options": "User"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-12-16 14:01:05.249098",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Company Notification Settings",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
