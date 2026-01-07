@@ -1,0 +1,146 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-01-05 22:08:02.131281",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+    "company",
+    "leave_type",
+    "employee_type",
+    "cb1",
+    "branch",
+    "merging_to",
+    "job_type",
+    "cb2",
+    "posting_date",
+    "fiscal_year",
+    "employee",
+    "sb1",
+    "get_details",
+    "items",
+    "amended_from"
+   ],
+   "fields": [
+    {
+     "fieldname": "company",
+     "fieldtype": "Link",
+     "label": "Company",
+     "options": "Company",
+     "read_only": 1
+    },
+    {
+     "default": "Casual Leave",
+     "fieldname": "leave_type",
+     "fieldtype": "Link",
+     "label": "Leave Type",
+     "options": "Leave Type",
+     "read_only": 1
+    },
+    {
+     "fieldname": "cb1",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "branch",
+     "fieldtype": "Link",
+     "label": "Branch",
+     "options": "Branch"
+    },
+    {
+     "fieldname": "cb2",
+     "fieldtype": "Column Break"
+    },
+    {
+     "fieldname": "fiscal_year",
+     "fieldtype": "Link",
+     "in_list_view": 1,
+     "label": "Fiscal Year",
+     "options": "Fiscal Year",
+     "reqd": 1
+    },
+    {
+     "default": "Earned Leave",
+     "fieldname": "merging_to",
+     "fieldtype": "Link",
+     "label": "Merging To",
+     "options": "Leave Type",
+     "read_only": 1
+    },
+    {
+     "fieldname": "sb1",
+     "fieldtype": "Section Break"
+    },
+    {
+     "fieldname": "get_details",
+     "fieldtype": "Button",
+     "label": "Get Details"
+    },
+    {
+     "allow_bulk_edit": 1,
+     "fieldname": "items",
+     "fieldtype": "Table",
+     "label": "Leave Details",
+     "options": "Carry Forward Item"
+    },
+    {
+     "fieldname": "amended_from",
+     "fieldtype": "Link",
+     "label": "Amended From",
+     "no_copy": 1,
+     "options": "Merge CL To EL",
+     "print_hide": 1,
+     "read_only": 1
+    },
+    {
+     "default": "Today",
+     "fieldname": "posting_date",
+     "fieldtype": "Date",
+     "label": "Posting Date"
+    },
+    {
+     "fieldname": "employee_type",
+     "fieldtype": "Link",
+     "label": "Employee Type",
+     "options": "Employment Type"
+    },
+    {
+     "fieldname": "job_type",
+     "fieldtype": "Select",
+     "label": "Job Type",
+     "options": "\nCivil Servant"
+    },
+    {
+     "fieldname": "employee",
+     "fieldtype": "Link",
+     "label": "Employee",
+     "options": "Employee"
+    }
+   ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-01-05 22:08:02.131281",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Merge CL To EL",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
