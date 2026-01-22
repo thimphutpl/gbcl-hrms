@@ -21,6 +21,8 @@ class SalaryIncrement(Document):
 		self.validate_increment()
 
 	def on_submit(self):
+		new_basic = frappe.db.get_value("Increment Employee Detail",{"parent":self.increment_entry,"employee":self.employee},'new_basic_pay')
+		frappe.throw(str(new_basic))
 		self.update_increment(self.new_basic)
 
 	def on_cancel(self):
@@ -31,6 +33,7 @@ class SalaryIncrement(Document):
 		return str(month_id).rjust(2,"0")
 
 	def update_increment(self, amount=0):
+
 		if self.salary_structure and amount:
 			sst = frappe.get_doc("Salary Structure", self.salary_structure)
 			sst.update_salary_structure(amount)
