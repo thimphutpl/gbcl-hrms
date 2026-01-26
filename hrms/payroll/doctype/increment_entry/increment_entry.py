@@ -39,14 +39,20 @@ class IncrementEntry(Document):
 
 	def get_emp_list(self, process_type=None):
 		self.set_month_dates()
-
+		#frappe.throw(str(self.fiscal_year))
+		from datetime import datetime
+		month_num = datetime.strptime(self.month_name, "%B").strftime("%m")
+		date_string = f"{self.fiscal_year}-{month_num}-01"
+		
 		cond = self.get_filter_condition()
 		cond += self.get_joining_relieving_condition()
 		data = []
 		emp_list = frappe.db.sql("""
 			select t1.name as employee, t1.employee_name, t1.grade, t1.department, t1.designation
 			from `tabEmployee` t1
+			Join `tabEmployee Group` eg on t1.employee_group=eg.name
 			where t1.status = 'Active'
+			and TIMESTAMPDIFF(MONTH, date_of_joining, '{}') > eg.minimum_months
 			and t1.increment_cycle = '{}' 
 			and not exists(select 1
 					from `tabSalary Increment` as t3
@@ -60,7 +66,7 @@ class IncrementEntry(Document):
 					and sst.is_active = 'Yes')
 			{}
 			order by t1.branch, t1.name
-		""".format(self.month_name, self.fiscal_year, self.month_name, cond), as_dict=True)
+		""".format(date_string,self.month_name, self.fiscal_year, self.month_name, cond), as_dict=True)
 		if emp_list:
 			for a in emp_list:
 				new_basic, increment, old_basic = self.get_employee_payscale(a.employee)
@@ -326,13 +332,16 @@ def get_existing_salary_increments(employees, args):
 		[args.company, args.fiscal_year, args.month] + employees)
 
 def submit_salary_increments_for_employees(increment_entry, salary_increments, publish_progress=True):
+	#frappe.throw("hi")
 	submitted_si = []
 	not_submitted_si = []
 	frappe.flags.via_increment_entry = True
 
 	count = 0
 	for si in salary_increments:
+		
 		si_obj = frappe.get_doc("Salary Increment",si[0])
+		# frappe.throw(str(si_obj))
 		if si_obj.increment<0:
 			not_submitted_si.append(si[0])
 		else:
