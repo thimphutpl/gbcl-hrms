@@ -1140,7 +1140,9 @@ class SalaryStructure(Document):
 
 			# Calculating Salary Tax
 			if ed == 'deductions':
-				calc_amt = get_salary_tax(math.floor(flt(total_earning)-flt(pf_amt)-flt(gis_amt)-(comm_allowance*0.5)))
+				# calc_amt = get_salary_tax(math.floor(flt(total_earning)-flt(pf_amt)-flt(gis_amt)-(comm_allowance*0.5)))
+				# 15 % of gross amount (new changes by sanga)
+				calc_amt = get_salary_tax(math.floor(flt(total_earning)-(total_earning*0.15)))
 				# calc_amt = roundoff(calc_amt)
 				calc_amt = flt(calc_amt)
 				total_deduction += calc_amt
@@ -1223,72 +1225,81 @@ def roundoff(amount):
 
 @frappe.whitelist()
 def make_salary_slip(
-    source_name,
-    target_doc=None,
-    employee=None,
-    posting_date=None,
-    as_print=False,
-    print_format=None,
-    for_preview=0,
-    ignore_permissions=False,
+	source_name,
+	target_doc=None,
+	employee=None,
+	posting_date=None,
+	as_print=False,
+	print_format=None,
+	for_preview=0,
+	ignore_permissions=False,
 ):
-    def postprocess(source, target):
-        if employee:
-            target.employee = employee
-        if posting_date:
-            target.posting_date = posting_date
+	def postprocess(source, target):
+		if employee:
+			target.employee = employee
+		if posting_date:
+			target.posting_date = posting_date
 
-        salary_details = frappe.get_all(
-            "Salary Detail",
-            filters={"parent": source.name},
-            fields=["salary_component", "from_date", "to_date"]
-        )
+		salary_details = frappe.get_all(
+			"Salary Detail",
+			filters={"parent": source.name},
+			fields=["salary_component", "from_date", "to_date"]
+		)
 
-        if not salary_details:
-            frappe.throw("No Salary Details found in Salary Structure.")
-        structure_from_date = min([d.from_date for d in salary_details if d.from_date])
-        structure_to_date = max([d.to_date for d in salary_details if d.to_date])
-        target.start_date = structure_from_date
-        target.end_date = structure_to_date
-        target.run_method("process_salary_structure", for_preview=for_preview)
+		if not salary_details:
+			frappe.throw("No Salary Details found in Salary Structure.")
+		# structure_from_date = min([d.from_date for d in salary_details if d.from_date])
+		# structure_to_date = max([d.to_date for d in salary_details if d.to_date])
+		# target.start_date = structure_from_date
+		# target.end_date = structure_to_date
+		# target.run_method("process_salary_structure", for_preview=for_preview)
+		valid_from_dates = [d.from_date for d in salary_details if d.from_date]
+		valid_to_dates = [d.to_date for d in salary_details if d.to_date]
+		
+		structure_from_date = min(valid_from_dates) if valid_from_dates else None
+		structure_to_date = max(valid_to_dates) if valid_to_dates else None
+		
+		target.start_date = structure_from_date
+		target.end_date = structure_to_date
+		target.run_method("process_salary_structure", for_preview=for_preview)
 
-        def filter_rows(rows):
-            filtered = []
-            for row in rows:
-                if not row.from_date:
-                    row.from_date = structure_from_date
-                if not row.to_date:
-                    row.to_date = structure_to_date
-                filtered.append(row)
-            return filtered
+		def filter_rows(rows):
+			filtered = []
+			for row in rows:
+				if not row.from_date:
+					row.from_date = structure_from_date
+				if not row.to_date:
+					row.to_date = structure_to_date
+				filtered.append(row)
+			return filtered
 
-        target.set("deductions", filter_rows(target.get("deductions")))
-        target.set("earnings", filter_rows(target.get("earnings")))
+		target.set("deductions", filter_rows(target.get("deductions")))
+		target.set("earnings", filter_rows(target.get("earnings")))
 
-    doc = get_mapped_doc(
-        "Salary Structure",
-        source_name,
-        {
-            "Salary Structure": {
-                "doctype": "Salary Slip",
-                "field_map": {
-                    "total_earning": "gross_pay",
-                    "name": "salary_structure",
-                },
-            }
-        },
-        target_doc,
-        postprocess,
-        ignore_child_tables=True,
-        ignore_permissions=ignore_permissions,
-        cached=True,
-    )
+	doc = get_mapped_doc(
+		"Salary Structure",
+		source_name,
+		{
+			"Salary Structure": {
+				"doctype": "Salary Slip",
+				"field_map": {
+					"total_earning": "gross_pay",
+					"name": "salary_structure",
+				},
+			}
+		},
+		target_doc,
+		postprocess,
+		ignore_child_tables=True,
+		ignore_permissions=ignore_permissions,
+		cached=True,
+	)
 
-    if cint(as_print):
-        doc.name = f"Preview for {employee}"
-        return frappe.get_print(doc.doctype, doc.name, doc=doc, print_format=print_format)
-    else:
-        return doc
+	if cint(as_print):
+		doc.name = f"Preview for {employee}"
+		return frappe.get_print(doc.doctype, doc.name, doc=doc, print_format=print_format)
+	else:
+		return doc
 
 def get_assigned_salary_structure(employee, on_date):
 	if not employee or not on_date:
