@@ -1,0 +1,101 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-05-03 10:48:05.400341",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "party_type",
+  "party",
+  "column_break_hhxx",
+  "full_name",
+  "designation",
+  "passport_no",
+  "supporting_documents_section",
+  "bhutan_visa_application_forms",
+  "passport_copy",
+  "passport_sized_photograph",
+  "any_other_relevant_supporting_documents",
+  "column_break_uafi"
+ ],
+ "fields": [
+  {
+   "fieldname": "party_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Party Type",
+   "options": "\nEmployee\nOthers"
+  },
+  {
+   "fieldname": "column_break_hhxx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "party",
+   "fieldtype": "Dynamic Link",
+   "in_list_view": 1,
+   "label": "Party",
+   "options": "party_type"
+  },
+  {
+   "fieldname": "designation",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Designation"
+  },
+  {
+   "fieldname": "full_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Full Name"
+  },
+  {
+   "fieldname": "supporting_documents_section",
+   "fieldtype": "Section Break",
+   "label": "Supporting Documents"
+  },
+  {
+   "fieldname": "bhutan_visa_application_forms",
+   "fieldtype": "Attach",
+   "label": "Bhutan Visa Application forms"
+  },
+  {
+   "fieldname": "column_break_uafi",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "passport_copy",
+   "fieldtype": "Attach",
+   "label": "Passport copy"
+  },
+  {
+   "fieldname": "passport_sized_photograph",
+   "fieldtype": "Attach",
+   "label": "Passport Sized Photograph"
+  },
+  {
+   "fieldname": "any_other_relevant_supporting_documents",
+   "fieldtype": "Attach",
+   "label": "Any other relevant supporting documents"
+  },
+  {
+   "fieldname": "passport_no",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "CID No/ Passport No."
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-06-18 10:29:32.474407",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Travellers Item",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

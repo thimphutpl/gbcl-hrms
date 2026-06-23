@@ -6,6 +6,7 @@
  "engine": "InnoDB",
  "field_order": [
   "employee_information_section",
+  "company",
   "employee",
   "employee_name",
   "column_break_djsx",
@@ -22,8 +23,12 @@
   "purpose_of_travel",
   "column_break_xlsv",
   "mode_of_travel",
+  "section_break_dgmb",
+  "travellers_detail",
   "section_break_tvvk",
   "items",
+  "section_break_hyla",
+  "miscellaneous_item",
   "approver_detial_section",
   "approver",
   "column_break_aysp",
@@ -31,7 +36,6 @@
   "column_break_esiv",
   "approver_designation",
   "additional_information_section",
-  "company",
   "status",
   "column_break_stkr",
   "amended_from",
@@ -53,7 +57,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "in_standard_filter": 1,
-   "label": "Employee",
+   "label": "Applicant/Employee",
    "options": "Employee",
    "reqd": 1
   },
@@ -230,12 +234,33 @@
    "fieldtype": "Link",
    "label": "Workflow State",
    "options": "Workflow State"
+  },
+  {
+   "fieldname": "section_break_dgmb",
+   "fieldtype": "Section Break",
+   "label": "Travellers Detail"
+  },
+  {
+   "fieldname": "travellers_detail",
+   "fieldtype": "Table",
+   "label": "Travellers Detail",
+   "options": "Travellers Item"
+  },
+  {
+   "fieldname": "section_break_hyla",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "miscellaneous_item",
+   "fieldtype": "Table",
+   "label": "Miscellaneous Item",
+   "options": "Travel Miscellaneous"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-05-20 08:21:58.688322",
+ "modified": "2026-06-18 11:50:22.152762",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",
