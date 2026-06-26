@@ -115,14 +115,12 @@
   {
    "fieldname": "start_date",
    "fieldtype": "Date",
-   "label": "Start Date",
-   "read_only": 1
+   "label": "Start Date"
   },
   {
    "fieldname": "end_date",
    "fieldtype": "Date",
-   "label": "End Date",
-   "read_only": 1
+   "label": "End Date"
   },
   {
    "fetch_from": "processing_branch.cost_center",
@@ -273,7 +271,7 @@
  "icon": "fa fa-cog",
  "is_submittable": 1,
  "links": [],
- "modified": "2025-04-17 15:52:54.942779",
+ "modified": "2026-05-30 10:56:10.315606",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Payroll Entry",

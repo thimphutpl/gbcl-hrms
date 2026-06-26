@@ -9,7 +9,7 @@ from frappe.model.document import Document
 from frappe.model.mapper import get_mapped_doc
 from frappe.utils import cint, cstr, flt, getdate, get_first_day, today, get_last_day
 from frappe.model.naming import make_autoname
-from hrms.hr.hr_custom_function import get_payroll_settings, get_salary_tax, get_month_details
+from hrms.hr.hr_custom_function import get_payroll_settings, get_salary_tax, get_month_details,calculate_salary_tax
 import math
 
 
@@ -26,6 +26,7 @@ class SalaryStructure(Document):
 	def validate(self):
 		self.validate_dates()
 		self.validate_amount()
+		self.get_employee_details()
 		self.update_salary_structure()
 
 	def validate_dates(self):
@@ -113,7 +114,18 @@ class SalaryStructure(Document):
 				calc_amt = 0
 				
 		return flt(calc_amt)
-
+	@frappe.whitelist()
+	def get_employee_details(self):
+		emp = frappe.get_doc("Employee", self.employee)
+		self.employee_name = emp.employee_name
+		self.branch = emp.branch
+		self.cost_center = emp.cost_center
+		self.designation = emp.designation
+		self.employment_type = emp.employment_type
+		self.employee_group = emp.employee_group
+		self.employee_grade = emp.grade
+		self.department = emp.department
+		self.backup_employee = self.employee
 	@frappe.whitelist()
 	def update_salary_structure(self, new_basic_pay=0, remove_flag=1):
 		'''
@@ -292,18 +304,20 @@ class SalaryStructure(Document):
 					total_deduction += calc_amt
 
 			# Calculating Salary Tax
-			if ed == 'deductions':
-				deduct_based_percent = frappe.db.get_value("Company",self.company,'deduct_sal_tax_on_percent')
-				if deduct_based_percent:
-					tax_percent = frappe.db.get_value("Company",self.company,'salary_tax_percent')
+			# if ed == 'deductions':
+			# 	deduct_based_percent = frappe.db.get_value("Company",self.company,'deduct_sal_tax_on_percent')
+			# 	if deduct_based_percent:
+			# 		tax_percent = frappe.db.get_value("Company",self.company,'salary_tax_percent')
 					
-					calc_amt = (flt(self.total_earning)*flt(tax_percent))/100
-				else:
-					calc_amt = get_salary_tax(math.floor(flt(total_earning)-flt(pf_amt)-flt(gis_amt)-(comm_allowance*0.5)))
-				# calc_amt = roundoff(calc_amt)
-				calc_amt = flt(calc_amt)
-				total_deduction += calc_amt
-				calc_map.append({'salary_component': 'Salary Tax', 'amount': flt(calc_amt)})
+			# 		calc_amt = (flt(self.total_earning)*flt(tax_percent))/100
+			# 	else:
+			# 		# calc_amt = get_salary_tax(math.floor(flt(total_earning)-flt(pf_amt)-flt(gis_amt)-(comm_allowance*0.5)))
+			# 		# 15% of Gross Amount (new changes by sanga)
+			# 		calc_amt = get_salary_tax(math.floor(flt(total_earning)-(total_earning*0.15)))
+			# 	# calc_amt = roundoff(calc_amt)
+			# 	calc_amt = flt(calc_amt)
+			# 	total_deduction += calc_amt
+			# 	calc_map.append({'salary_component': 'Salary Tax', 'amount': flt(calc_amt)})
 
 			# Updating existing Earnings and Deductions tables
 			for c in calc_map:
@@ -350,6 +364,34 @@ def make_salary_slip(
 				target.posting_date = posting_date
 
 		target.run_method("process_salary_structure", for_preview=for_preview)
+
+
+	# frappe.throw(str(target))
+		tax_amount = calculate_salary_tax(
+			target,
+			target.fiscal_year,
+			target.month
+		)
+		# tax_amount = calculate_salary_tax(
+		# 		target,
+		# 		target.fiscal_year,
+		# 		target.month
+		# 	)
+
+		target.append("deductions", {
+			"salary_component": "Salary Tax",
+			"amount": tax_amount,
+		})
+
+		target.gross_pay = sum(
+			flt(e.amount) for e in target.get("earnings", [])
+		)
+		target.total_deduction = sum(
+			flt(d.amount) for d in target.get("deductions", [])
+		)
+		target.net_pay = flt(target.gross_pay) - flt(target.total_deduction)
+		target.rounded_total = roundoff(target.net_pay)
+
 
 	doc = get_mapped_doc(
 		"Salary Structure",

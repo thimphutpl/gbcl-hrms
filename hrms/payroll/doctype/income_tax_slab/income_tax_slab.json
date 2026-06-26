@@ -6,14 +6,16 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "effective_from",
-  "effective_till",
-  "column_break_iqvj",
   "company",
+  "effective_till",
+  "effective_from",
+  "disabled",
+  "column_break_iqvj",
+  "fiscal_year",
+  "month",
   "currency",
   "allow_tax_exemption",
   "standard_tax_exemption_amount",
-  "disabled",
   "taxable_salary_slabs_section",
   "slabs",
   "taxes_and_charges_on_income_tax_section",
@@ -25,9 +27,9 @@
   {
    "fieldname": "effective_from",
    "fieldtype": "Date",
+   "hidden": 1,
    "in_list_view": 1,
-   "label": "Effective From",
-   "reqd": 1
+   "label": "Effective From"
   },
   {
    "default": "0",
@@ -77,7 +79,8 @@
    "fieldname": "company",
    "fieldtype": "Link",
    "label": "Company",
-   "options": "Company"
+   "options": "Company",
+   "reqd": 1
   },
   {
    "collapsible": 1,
@@ -113,13 +116,27 @@
   {
    "fieldname": "effective_till",
    "fieldtype": "Date",
-   "label": "Effective Till",
+   "hidden": 1,
+   "label": "Effective Till"
+  },
+  {
+   "fieldname": "fiscal_year",
+   "fieldtype": "Link",
+   "label": "Fiscal Year",
+   "options": "Fiscal Year",
+   "reqd": 1
+  },
+  {
+   "fieldname": "month",
+   "fieldtype": "Link",
+   "label": "Month",
+   "options": "Month",
    "reqd": 1
   }
  ],
  "is_submittable": 1,
  "links": [],
- "modified": "2025-02-03 15:41:11.175223",
+ "modified": "2026-05-30 11:27:50.796467",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Income Tax Slab",

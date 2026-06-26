@@ -214,7 +214,11 @@ class SalarySlip(TransactionBase):
 			)
 
 		if date_diff(self.end_date, self.joining_date) < 0:
-			frappe.log_error(frappe.as_json(self))
+			# frappe.log_error(frappe.as_json(self))
+			frappe.log_error(
+					title="Salary Slip Validation Error",
+					message=frappe.as_json(self)
+			)
 			frappe.throw(_("Cannot create Salary Slip for Employee joining after Payroll Period"))
 
 		if self.relieving_date and date_diff(self.relieving_date, self.start_date) < 0:
