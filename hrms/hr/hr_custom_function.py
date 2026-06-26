@@ -59,6 +59,48 @@ def get_salary_tax(gross_amt):
 
 	return flt(tax_amount)
 
+def calculate_salary_tax(target, fiscal_year, month):
+
+
+	gross_salary = flt(target.gross_pay)
+
+
+	slabs = frappe.db.sql("""
+		SELECT
+			tss.tax,
+			tss.from_amount,
+			tss.to_amount
+		FROM `tabIncome Tax Slab` its
+		JOIN `tabTaxable Salary Slab` tss
+			ON its.name = tss.parent
+		WHERE
+			its.company = %s
+			AND its.fiscal_year = %s
+			AND its.month = %s
+			AND its.disabled = 0
+		ORDER BY tss.from_amount
+	""", (target.company, fiscal_year, month), as_dict=1)
+
+	tax_amount = 0
+	if not slabs:
+		frappe.throw(
+			f"Please set Income Tax Slab for {month} {fiscal_year} ({target.company})"
+		)
+
+	for row in slabs:
+
+		if (
+			gross_salary >= flt(row.from_amount)
+			and gross_salary <= flt(row.to_amount)
+		):
+			tax_amount = (
+				gross_salary * flt(row.tax)
+			) / 100
+			# frappe.throw(frappe.as_json(tax_amount))
+
+			break
+	return flt(tax_amount)
+
 @frappe.whitelist()
 def get_month_details(year, month):
 	ysd = frappe.db.get_value("Fiscal Year", year, "year_start_date")
