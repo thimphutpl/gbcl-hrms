@@ -63,6 +63,8 @@ def calculate_salary_tax(target, fiscal_year, month):
 
 
 	gross_salary = flt(target.gross_pay)
+	if target.company == "GMCA USD":
+		return 
 
 
 	slabs = frappe.db.sql("""
