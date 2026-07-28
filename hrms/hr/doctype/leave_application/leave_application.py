@@ -1434,6 +1434,7 @@ from hrms.hr.utils import (
 )
 from hrms.mixins.pwa_notifications import PWANotificationsMixin
 from hrms.utils import get_employee_email
+from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
 
 
 class LeaveDayBlockedError(frappe.ValidationError):
@@ -1482,25 +1483,28 @@ class LeaveApplication(Document, PWANotificationsMixin):
 		self.validate_salary_processed_days()
 		self.validate_attendance()
 		self.set_half_day_date()
+		validate_workflow_states(self)
+		if self.workflow_state != "Approved":
+			notify_workflow_states(self)
 		if frappe.db.get_value("Leave Type", self.leave_type, "is_optional_leave"):
 			self.validate_optional_leave()
 		self.validate_applicable_after()
 
 	def on_update(self):
 		
-		if self.status == "Open" and self.docstatus < 1:
-			user_id=frappe.session.user
+		# if self.status == "Open" and self.docstatus < 1:
+		# 	user_id=frappe.session.user
 			
-			#frappe.throw(empid)
-			if self.workflow_state=="Waiting Approval" and self.reports_to!=user_id:
-				frappe.throw("Only {} can verify".format(self.reports_to))	
+		# 	#frappe.throw(empid)
+		# 	if self.workflow_state=="Waiting Approval" and self.reports_to!=user_id:
+		# 		frappe.throw("Only {} can verify".format(self.reports_to))	
 			
 			
 			
 			# notify leave approver about creation
-			if frappe.db.get_single_value("HR Settings", "send_leave_notification"):
+			# if frappe.db.get_single_value("HR Settings", "send_leave_notification"):
 				
-				self.notify_leave_approver()
+			# 	self.notify_leave_approver()
 
 		share_doc_with_approver(self, self.leave_approver)
 		self.publish_update()
@@ -2815,13 +2819,14 @@ def on_doctype_update():
 	frappe.db.add_index("Leave Application", ["employee", "from_date", "to_date"])
 
 
+
 def get_permission_query_conditions(user):
-    if not user:
-        user = frappe.session.user
-    user_roles = frappe.get_roles(user)
-    if user == "Administrator" or "HR User" in user_roles or "HR Manager" in user_roles:
-        return
-    conditions = f"""
+	if not user:
+		user = frappe.session.user
+	user_roles = frappe.get_roles(user)
+	if user == "Administrator" or "HR User" in user_roles or "HR Manager" in user_roles:
+		return
+	conditions = f"""
 		(
 			`tabLeave Application`.owner = '{user}'
 			OR
@@ -2836,5 +2841,6 @@ def get_permission_query_conditions(user):
 			(`tabLeave Application`.leave_approver = '{user}'
 			 AND `tabLeave Application`.workflow_state NOT IN ('Draft'))
 	"""
-    conditions += ")"
-    return conditions
+	conditions += ")"
+	return conditions
+
