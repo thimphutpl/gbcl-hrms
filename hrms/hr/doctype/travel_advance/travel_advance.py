@@ -109,19 +109,30 @@ def make_travel_advance(dt, dn):
 	"""
 	Creates a Travel Advance document linked to the given Travel Authorization.
 	"""
-	doc = frappe.get_doc(dt, dn)
-	if doc.items:
-		from_date = doc.items[0].from_date
-		to_date = doc.items[-1].from_date if len(doc.items) > 1 else from_date
+	from hrms.hr.doctype.travel_authorization.travel_authorization import get_claimant_employee
 
-	employee_grade = frappe.db.get_value("Employee", doc.employee, "grade")
+	doc = frappe.get_doc(dt, dn)
+
+	# advance is for the logged-in traveller's own itinerary
+	claimant = get_claimant_employee(doc)
+	items = doc.rows_for_claimant(claimant, "items")
+	if not items:
+		frappe.throw(
+			_("There are no travel itinerary rows for {0} in {1}.").format(frappe.bold(claimant), doc.name),
+			title=_("Nothing to Advance"),
+		)
+
+	from_date = items[0].from_date
+	to_date = items[-1].from_date if len(items) > 1 else from_date
+
+	claimant_name, employee_grade = frappe.db.get_value("Employee", claimant, ["employee_name", "grade"])
 	dsa = frappe.db.get_value("Employee Grade", employee_grade, "dsa")
 
 	no_of_days = date_diff(to_date, from_date) + 1
 
 	adv = frappe.new_doc("Travel Advance")
-	adv.employee = doc.employee
-	adv.employee_name = doc.employee_name
+	adv.employee = claimant
+	adv.employee_name = claimant_name
 	adv.branch = doc.branch
 	adv.cost_center = doc.cost_center
 	adv.currency = doc.currency

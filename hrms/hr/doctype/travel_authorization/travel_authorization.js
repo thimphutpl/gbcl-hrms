@@ -1,6 +1,41 @@
 // Copyright (c) 2025, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
+// show traveller links as "Name (ID)" instead of bare ID
+const traveller_link_formatter = function (value, doc) {
+	let name = doc && (doc.traveller_name || doc.full_name || doc.employee_name);
+	if (value && name && name !== value) {
+		return `${name} (${value})`;
+	}
+	return value;
+};
+frappe.form.link_formatters["Employee"] = traveller_link_formatter;
+frappe.form.link_formatters["Others"] = traveller_link_formatter;
+
+// new rows keep the traveller of the previous row, so one traveller's
+// itinerary/miscellaneous can be entered without re-selecting each time
+function inherit_traveller(frm, cdt, cdn, table) {
+	let row = locals[cdt][cdn];
+	if (row.party) return;
+
+	let rows = frm.doc[table] || [];
+	let prev = rows[row.idx - 2];
+	if (prev && prev.party) {
+		row.party_type = prev.party_type;
+		row.party = prev.party;
+		row.traveller_name = prev.traveller_name;
+	} else if (!prev) {
+		// first row: default to the only traveller, if there is just one
+		let travellers = (frm.doc.travellers_detail || []).filter((d) => d.party);
+		if (travellers.length === 1) {
+			row.party_type = travellers[0].party_type;
+			row.party = travellers[0].party;
+			row.traveller_name = travellers[0].full_name;
+		}
+	}
+	frm.refresh_field(table);
+}
+
 frappe.ui.form.on("Travel Authorization", {
 	setup: function (frm) {
 		frm.set_query("employee", function () {
@@ -10,9 +45,29 @@ frappe.ui.form.on("Travel Authorization", {
 				},
 			};
 		});
+
+		// traveller pickers only offer people listed in Travellers Detail
+		["items", "miscellaneous_item"].forEach((table) => {
+			frm.set_query("party", table, function (doc, cdt, cdn) {
+				let row = locals[cdt][cdn];
+				let parties = (frm.doc.travellers_detail || [])
+					.filter((d) => d.party_type === row.party_type && d.party)
+					.map((d) => d.party);
+				return {
+					filters: {
+						name: ["in", parties],
+					},
+				};
+			});
+		});
 	},
 
 	refresh(frm) {
+		frm.events.calc_misc_total(frm);
+
+		// once the request is Approved, the Create actions are hidden
+		if (frm.doc.workflow_state === "Approved") return;
+
 		frm.call("has_travel_claim").then((r) => {
 			if (!r.message.has_travel_claim) {
 				if (
@@ -32,7 +87,7 @@ frappe.ui.form.on("Travel Authorization", {
 					frm.doc.docstatus === 1 &&
 					frappe.model.can_create("Travel Claim")
 				) {
-				
+
 					frm.add_custom_button(
 						__("Travel Claim"),
 						function () {
@@ -56,6 +111,14 @@ frappe.ui.form.on("Travel Authorization", {
 				}
 			}
 		});
+	},
+
+	calc_misc_total: function (frm) {
+		let total = (frm.doc.miscellaneous_item || []).reduce(
+			(sum, row) => sum + flt(row.amount),
+			0,
+		);
+		frm.set_value("total_miscellaneous_amount", total);
 	},
 
 	make_travel_claim: function (frm) {
@@ -152,7 +215,45 @@ frappe.ui.form.on("Travel Authorization", {
 	},
 });
 
+function set_traveller_name(frm, cdt, cdn) {
+	let row = locals[cdt][cdn];
+	let match = (frm.doc.travellers_detail || []).find(
+		(d) => d.party_type === row.party_type && d.party === row.party
+	);
+	frappe.model.set_value(cdt, cdn, "traveller_name", match ? match.full_name : "");
+}
+
+frappe.ui.form.on("Travel Miscellaneous", {
+	miscellaneous_item_add: function (frm, cdt, cdn) {
+		inherit_traveller(frm, cdt, cdn, "miscellaneous_item");
+	},
+
+	amount: function (frm) {
+		frm.events.calc_misc_total(frm);
+	},
+
+	miscellaneous_item_remove: function (frm) {
+		frm.events.calc_misc_total(frm);
+	},
+
+	party: set_traveller_name,
+
+	party_type: function (frm, cdt, cdn) {
+		frappe.model.set_value(cdt, cdn, "party", "");
+	},
+});
+
 frappe.ui.form.on("Travel Authorization Item", {
+	items_add: function (frm, cdt, cdn) {
+		inherit_traveller(frm, cdt, cdn, "items");
+	},
+
+	party: set_traveller_name,
+
+	party_type: function (frm, cdt, cdn) {
+		frappe.model.set_value(cdt, cdn, "party", "");
+	},
+
 	from_date: function(frm, cdt, cdn) {
 		let child = locals[cdt][cdn];
 		if (!child.halt && child.from_date != child.to_date) {
@@ -171,4 +272,34 @@ frappe.ui.form.on("Travel Authorization Item", {
 			}
 		}
 	},
+});
+
+frappe.ui.form.on('Travellers Item', {
+    party: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+
+        if (row.party_type === "Employee" && row.party) {
+
+            frappe.db.get_value("Employee", row.party, [
+                "employee_name",
+                "designation"
+            ]).then(r => {
+
+                if (r.message) {
+                    frappe.model.set_value(cdt, cdn, "full_name", r.message.employee_name);
+                    frappe.model.set_value(cdt, cdn, "designation", r.message.designation);
+                }
+            });
+        }
+		if (row.party_type === "Others" && row.party) {
+
+			frappe.db.get_value("Others", row.party, ["full_name", "designation"])
+				.then(r => {
+					if (r && r.message) {
+						frappe.model.set_value(cdt, cdn, "full_name", r.message.full_name);
+						frappe.model.set_value(cdt, cdn, "designation", r.message.designation);
+					}
+				});
+		}
+    }
 });
