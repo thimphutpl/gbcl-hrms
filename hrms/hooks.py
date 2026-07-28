@@ -135,11 +135,12 @@ before_app_uninstall = "hrms.setup.before_app_uninstall"
 permission_query_conditions = {
 	# "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
     "Leave Application": "hrms.hr.doctype.leave_application.leave_application.get_permission_query_conditions",
+    "Travel Authorization": "hrms.hr.doctype.travel_authorization.travel_authorization.get_permission_query_conditions",
 }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+
+has_permission = {
+	"Travel Authorization": "hrms.hr.doctype.travel_authorization.travel_authorization.has_permission",
+}
 
 has_upload_permission = {"Employee": "erpnext.setup.doctype.employee.employee.has_upload_permission"}
 
@@ -153,6 +154,18 @@ override_doctype_class = {
 	"Payment Entry": "hrms.overrides.employee_payment_entry.EmployeePaymentEntry",
 	"Project": "hrms.overrides.employee_project.EmployeeProject",
 }
+
+# Fixtures
+# --------
+# Custom Fields (and other data) that should travel with the app in git
+# and be re-created on other sites during `bench migrate`.
+
+fixtures = [
+	{
+		"dt": "Custom Field",
+		"filters": [["name", "in", ["Company-travel_journal_account"]]],
+	},
+]
 
 # Document Events
 # ---------------
