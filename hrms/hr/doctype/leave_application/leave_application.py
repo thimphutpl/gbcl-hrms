@@ -1473,7 +1473,6 @@ class LeaveApplication(Document, PWANotificationsMixin):
 	def validate(self):
 		validate_active_employee(self.employee)
 		set_employee_name(self)
-		
 		self.validate_dates()
 		self.validate_balance_leaves()
 		self.validate_leave_overlap()
