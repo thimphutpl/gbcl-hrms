@@ -24,13 +24,39 @@ from frappe.utils import (
 	now_datetime
 )
 from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
+from hrms.hr.doctype.travel_authorization.travel_authorization import get_claimant_employee
 
 class TravelClaim(Document):
 	def validate(self):
+		self.validate_duplicate_claim()
 		self.get_advance()
 		self.calculate_miscellaneous()
 		self.calculate_amount()
 		# validate_workflow_states(self)
+
+	def validate_duplicate_claim(self):
+		if not (self.travel_authorization and self.employee):
+			return
+
+		existing = frappe.db.get_value(
+			"Travel Claim",
+			{
+				"travel_authorization": self.travel_authorization,
+				"employee": self.employee,
+				"docstatus": ("<", 2),
+				"name": ("!=", self.name),
+			},
+			"name",
+		)
+		if existing:
+			frappe.throw(
+				_("Travel Claim {0} already exists for {1} against {2}.").format(
+					get_link_to_form("Travel Claim", existing),
+					frappe.bold(self.employee),
+					get_link_to_form("Travel Authorization", self.travel_authorization),
+				),
+				title=_("Duplicate Claim"),
+			)
 
 	def on_submit(self):
 		# self.update_travel_authorization()
@@ -337,7 +363,24 @@ class TravelClaim(Document):
 def get_travel_claim(dt, dn):
 	doc = frappe.get_doc(dt, dn)
 
-	employee_grade = frappe.db.get_value("Employee", doc.employee, "grade")
+	# each traveller claims their own rows; the applicant also claims the
+	# rows of non-login travellers (party type Others)
+	claimant = get_claimant_employee(doc)
+
+	existing = frappe.db.get_value(
+		"Travel Claim",
+		{"travel_authorization": doc.name, "employee": claimant, "docstatus": ("<", 2)},
+		"name",
+	)
+	if existing:
+		frappe.throw(
+			_("Travel Claim {0} already exists for {1}.").format(
+				get_link_to_form("Travel Claim", existing), frappe.bold(claimant)
+			),
+			title=_("Already Claimed"),
+		)
+
+	claimant_name, employee_grade = frappe.db.get_value("Employee", claimant, ["employee_name", "grade"])
 	dsa = frappe.db.get_value("Employee Grade", employee_grade, "dsa")
 	if not dsa:
 		frappe.throw(
@@ -349,17 +392,24 @@ def get_travel_claim(dt, dn):
 
 	return_day_dsa = frappe.db.get_single_value("HR Settings", "return_day_dsa")
 
+	items = doc.rows_for_claimant(claimant, "items")
+	if not items:
+		frappe.throw(
+			_("There are no travel itinerary rows for {0} in {1}.").format(frappe.bold(claimant), doc.name),
+			title=_("Nothing to Claim"),
+		)
+
 	tc = frappe.new_doc("Travel Claim")
 	tc.posting_date = frappe.utils.nowdate()
-	tc.employee = doc.employee
-	tc.employee_name = doc.employee_name
+	tc.employee = claimant
+	tc.employee_name = claimant_name
 	tc.travel_type = doc.travel_type
 	tc.purpose_of_travel = doc.purpose_of_travel
 	tc.mode_of_travel = doc.mode_of_travel
 	tc.branch = doc.branch
 	tc.cost_center = doc.cost_center
 
-	for d in doc.get("items"):
+	for d in items:
 		item = d.as_dict()
 		if d.is_last_day == 1:
 			item["dsa_percent"] = return_day_dsa if return_day_dsa else 100
@@ -370,6 +420,12 @@ def get_travel_claim(dt, dn):
 		item["no_of_days"] = date_diff(d.to_date, d.from_date) + 1
 		item["amount"] = flt(item["no_of_days"]) * flt(item["dsa"])
 		tc.append("items", item)
+
+	for d in doc.rows_for_claimant(claimant, "travellers_detail"):
+		tc.append("travellers_detail", d.as_dict())
+
+	for d in doc.rows_for_claimant(claimant, "miscellaneous_item"):
+		tc.append("miscellaneous_item", d.as_dict())
 
 	tc.travel_authorization = doc.name
 	tc.currency = doc.currency
