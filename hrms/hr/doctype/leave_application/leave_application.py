@@ -1503,9 +1503,7 @@ class LeaveApplication(Document, PWANotificationsMixin):
 			
 			# notify leave approver about creation
 			# if frappe.db.get_single_value("HR Settings", "send_leave_notification"):
-				
 			# 	self.notify_leave_approver()
-
 		share_doc_with_approver(self, self.leave_approver)
 		self.publish_update()
 		self.notify_approval_status()
