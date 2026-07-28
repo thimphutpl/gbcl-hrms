@@ -1,0 +1,492 @@
+{
+ "actions": [],
+ "allow_import": 1,
+ "autoname": "naming_series:",
+ "creation": "2026-07-23 00:00:00.000000",
+ "doctype": "DocType",
+ "document_type": "Document",
+ "engine": "InnoDB",
+ "field_order": [
+  "details_tab",
+  "requester_section",
+  "naming_series",
+  "employee",
+  "employee_name",
+  "designation",
+  "date_of_request",
+  "column_break_req",
+  "company",
+  "department",
+  "tagged_supervisor",
+  "event_approver",
+  "approval_status",
+  "approved_ref_number",
+  "event_details_section",
+  "event_type",
+  "event_title",
+  "event_from_date",
+  "column_break_evt",
+  "event_to_date",
+  "event_location",
+  "estimated_participants",
+  "purpose_section",
+  "purpose_of_event",
+  "guests_section",
+  "guests",
+  "cost_section",
+  "currency",
+  "estimated_event_cost",
+  "add_cost_breakdown",
+  "column_break_cost",
+  "cost_center",
+  "total_estimated_cost",
+  "breakdown_section",
+  "cost_breakdown",
+  "justification_section",
+  "justification",
+  "accounting_tab",
+  "accounting_section",
+  "posting_date",
+  "expense_account",
+  "column_break_acc",
+  "payable_account",
+  "project",
+  "journal_entry",
+  "more_info_tab",
+  "status",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "details_tab",
+   "fieldtype": "Tab Break",
+   "label": "Details"
+  },
+  {
+   "fieldname": "requester_section",
+   "fieldtype": "Section Break",
+   "label": "Request Details"
+  },
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "label": "Series",
+   "no_copy": 1,
+   "options": "HR-EVT-.YYYY.-",
+   "print_hide": 1,
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "description": "Only Head of Department, Associate Director or Director should raise an event request.",
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_global_search": 1,
+   "in_standard_filter": 1,
+   "label": "Requester (Employee)",
+   "options": "Employee",
+   "reqd": 1,
+   "search_index": 1
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "label": "Requester Name",
+   "read_only": 1
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fetch_if_empty": 1,
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "date_of_request",
+   "fieldtype": "Date",
+   "label": "Date of Request",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_req",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fetch_from": "employee.company",
+   "fetch_if_empty": 1,
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_standard_filter": 1,
+   "label": "Company",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "employee.department",
+   "fetch_if_empty": 1,
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department / Branch",
+   "options": "Department"
+  },
+  {
+   "description": "Assigned automatically at approval; can be set manually.",
+   "fieldname": "tagged_supervisor",
+   "fieldtype": "Link",
+   "label": "Tagged Supervisor",
+   "options": "Employee"
+  },
+  {
+   "fieldname": "event_approver",
+   "fieldtype": "Link",
+   "label": "Approver (CFO)",
+   "options": "User"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "approval_status",
+   "fieldtype": "Select",
+   "label": "Approval Status",
+   "no_copy": 1,
+   "options": "Draft\nApproved\nRejected",
+   "permlevel": 1,
+   "search_index": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "description": "Reference number assigned on CFO approval.",
+   "fieldname": "approved_ref_number",
+   "fieldtype": "Data",
+   "label": "Approved Ref Number",
+   "no_copy": 1
+  },
+  {
+   "fieldname": "event_details_section",
+   "fieldtype": "Section Break",
+   "label": "Event Details"
+  },
+  {
+   "fieldname": "event_type",
+   "fieldtype": "Select",
+   "label": "Event Type",
+   "options": "\nMeeting\nConference\nTraining / Workshop\nSite Visit\nQuarterly Progress Review\nOfficial Ceremony / Launch\nOther"
+  },
+  {
+   "fieldname": "event_title",
+   "fieldtype": "Data",
+   "in_global_search": 1,
+   "in_list_view": 1,
+   "label": "Event Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "event_from_date",
+   "fieldtype": "Date",
+   "label": "Event Date — From",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_evt",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "event_to_date",
+   "fieldtype": "Date",
+   "label": "Event Date — To"
+  },
+  {
+   "fieldname": "event_location",
+   "fieldtype": "Data",
+   "label": "Event Location",
+   "reqd": 1
+  },
+  {
+   "fieldname": "estimated_participants",
+   "fieldtype": "Int",
+   "label": "Estimated Number of Participants"
+  },
+  {
+   "fieldname": "purpose_section",
+   "fieldtype": "Section Break",
+   "label": "Purpose of Event"
+  },
+  {
+   "fieldname": "purpose_of_event",
+   "fieldtype": "Small Text",
+   "label": "Event Purpose",
+   "reqd": 1
+  },
+  {
+   "fieldname": "guests_section",
+   "fieldtype": "Section Break",
+   "label": "Guest(s) / VIP(s) Attending"
+  },
+  {
+   "description": "Add all guests and VIPs expected to attend. Mark VIPs using the Category column — this affects protocol and security coordination.",
+   "fieldname": "guests",
+   "fieldtype": "Table",
+   "label": "Guests / VIPs",
+   "options": "Event Request Guest"
+  },
+  {
+   "fieldname": "cost_section",
+   "fieldtype": "Section Break",
+   "label": "Cost"
+  },
+  {
+   "fieldname": "currency",
+   "fieldtype": "Link",
+   "label": "Currency",
+   "options": "Currency"
+  },
+  {
+   "description": "When 'Add Cost Breakdown' is ticked, this is calculated from the breakdown table below.",
+   "fieldname": "estimated_event_cost",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Estimated Cost",
+   "options": "currency",
+   "read_only_depends_on": "eval:doc.add_cost_breakdown"
+  },
+  {
+   "default": "0",
+   "description": "Tick to itemise the cost. Leave unticked to just enter a single Estimated Cost.",
+   "fieldname": "add_cost_breakdown",
+   "fieldtype": "Check",
+   "label": "Add Cost Breakdown?"
+  },
+  {
+   "fieldname": "column_break_cost",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Budget line / cost center charged for this event.",
+   "fieldname": "cost_center",
+   "fieldtype": "Link",
+   "label": "Budget Line / Cost Center",
+   "options": "Cost Center"
+  },
+  {
+   "fieldname": "total_estimated_cost",
+   "fieldtype": "Currency",
+   "label": "Total Estimated Cost",
+   "options": "currency",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:doc.add_cost_breakdown",
+   "fieldname": "breakdown_section",
+   "fieldtype": "Section Break",
+   "label": "Cost Breakdown"
+  },
+  {
+   "description": "Break the estimated cost down by item — e.g. venue, catering, transport, accommodation. The total updates Estimated Cost above.",
+   "fieldname": "cost_breakdown",
+   "fieldtype": "Table",
+   "label": "Cost Breakdown",
+   "mandatory_depends_on": "eval:doc.add_cost_breakdown",
+   "options": "Event Request Cost Breakdown"
+  },
+  {
+   "fieldname": "justification_section",
+   "fieldtype": "Section Break",
+   "label": "Justification / Business Purpose"
+  },
+  {
+   "description": "Provide sufficient business justification to support approval.",
+   "fieldname": "justification",
+   "fieldtype": "Text Editor",
+   "label": "Justification / Remarks"
+  },
+  {
+   "fieldname": "accounting_tab",
+   "fieldtype": "Tab Break",
+   "label": "Accounting"
+  },
+  {
+   "fieldname": "accounting_section",
+   "fieldtype": "Section Break",
+   "label": "Accounting Details"
+  },
+  {
+   "default": "Today",
+   "fieldname": "posting_date",
+   "fieldtype": "Date",
+   "in_standard_filter": 1,
+   "label": "Posting Date",
+   "reqd": 1
+  },
+  {
+   "description": "Debited for the estimated event cost on approval.",
+   "fieldname": "expense_account",
+   "fieldtype": "Link",
+   "label": "Expense Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "column_break_acc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "description": "Credited (accrued / payable) for the estimated event cost on approval.",
+   "fieldname": "payable_account",
+   "fieldtype": "Link",
+   "label": "Payable / Accrued Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fieldname": "journal_entry",
+   "fieldtype": "Link",
+   "label": "Journal Entry",
+   "no_copy": 1,
+   "options": "Journal Entry",
+   "read_only": 1
+  },
+  {
+   "fieldname": "more_info_tab",
+   "fieldtype": "Tab Break",
+   "label": "More Info"
+  },
+  {
+   "default": "Draft",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "no_copy": 1,
+   "options": "Draft\nSubmitted\nApproved\nRejected\nCancelled",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "ignore_user_permissions": 1,
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Event Request",
+   "print_hide": 1,
+   "read_only": 1
+  }
+ ],
+ "icon": "fa fa-calendar",
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-07-23 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "HR",
+ "name": "Event Request",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "HR User",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Employee",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Expense Approver",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "HR Manager",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "HR User",
+   "write": 1
+  },
+  {
+   "permlevel": 1,
+   "read": 1,
+   "role": "Expense Approver",
+   "write": 1
+  }
+ ],
+ "search_fields": "employee,employee_name,event_title",
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [
+  {
+   "color": "Gray",
+   "title": "Draft"
+  },
+  {
+   "color": "Blue",
+   "title": "Submitted"
+  },
+  {
+   "color": "Green",
+   "title": "Approved"
+  },
+  {
+   "color": "Red",
+   "title": "Rejected"
+  },
+  {
+   "color": "Red",
+   "title": "Cancelled"
+  }
+ ],
+ "title_field": "event_title"
+}
