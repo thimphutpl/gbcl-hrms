@@ -1879,11 +1879,16 @@ class SalarySlip(TransactionBase):
 
 		return lwp, absent
 	def set_salary_structure(self):
+		if not self.start_date:
+			self.start_date = frappe.db.get_value("Payroll Entry", self.payroll_entry, "start_date")
+		if not self.end_date:
+			self.end_date = frappe.db.get_value("Payroll Entry", self.payroll_entry, "end_date")
 		self._salary_structure = frappe.db.get_value(
 			"Salary Structure",
 			{
 				"employee": self.employee,
-				"from_date": ("<=", self.actual_start_date or self.start_date),
+				"from_date": ("<=", self.start_date),
+				# "from_date": ("<=", self.actual_start_date or self.start_date),
 				"is_active": "Yes",
 			},
 			"*",
@@ -1897,7 +1902,8 @@ class SalarySlip(TransactionBase):
 			frappe.throw(
 				_("Please assign a Salary Structure for Employee {0} applicable from or before {1}").format(
 					frappe.bold(self.employee_name),
-					frappe.bold(start_date_str),
+					# frappe.bold(start_date_str),
+					frappe.bold(formatdate(start_date_str)),
 				)
 			)
 
