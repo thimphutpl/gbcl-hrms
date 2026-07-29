@@ -38,6 +38,10 @@
   "column_break_vtdh",
   "currency",
   "exchange_rate",
+  "additional_information_section",
+  "tds_receipt_number",
+  "column_break_jzzg",
+  "tds_receipt_date",
   "earnings_and_deductions_tab",
   "payment_days_section",
   "payment_days",
@@ -717,13 +721,32 @@
    "fieldtype": "Data",
    "label": "GIS Policy Number",
    "read_only": 1
+  },
+  {
+   "fieldname": "additional_information_section",
+   "fieldtype": "Section Break",
+   "label": "Additional Information"
+  },
+  {
+   "fieldname": "tds_receipt_number",
+   "fieldtype": "Data",
+   "label": "TDS Receipt Number"
+  },
+  {
+   "fieldname": "column_break_jzzg",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "tds_receipt_date",
+   "fieldtype": "Date",
+   "label": "TDS Receipt Date"
   }
  ],
  "icon": "fa fa-file-text",
  "idx": 9,
  "is_submittable": 1,
  "links": [],
- "modified": "2025-03-04 10:13:18.723218",
+ "modified": "2026-07-28 12:33:33.439181",
  "modified_by": "Administrator",
  "module": "Payroll",
  "name": "Salary Slip",

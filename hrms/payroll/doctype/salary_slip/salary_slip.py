@@ -1381,6 +1381,7 @@ class SalarySlip(TransactionBase):
 
 		return self.__actual_start_date
 
+
 	@property
 	def actual_end_date(self):
 		if not hasattr(self, "__actual_end_date"):
@@ -1877,29 +1878,52 @@ class SalarySlip(TransactionBase):
 				absent += 1
 
 		return lwp, absent
-
 	def set_salary_structure(self):
-		
 		self._salary_structure = frappe.db.get_value(
 			"Salary Structure",
 			{
 				"employee": self.employee,
-				"from_date": ("<=", self.actual_start_date),
+				"from_date": ("<=", self.actual_start_date or self.start_date),
 				"is_active": "Yes",
 			},
 			"*",
 			order_by="from_date desc",
 			as_dict=True,
 		)
+
 		if not self._salary_structure:
+			# safely format the message
+			start_date_str = formatdate(self.actual_start_date) if self.actual_start_date else "N/A"
 			frappe.throw(
-				_(
-					"Please assign a Salary Structure for Employee {0} applicable from or before {1} first"
-				).format(
+				_("Please assign a Salary Structure for Employee {0} applicable from or before {1}").format(
 					frappe.bold(self.employee_name),
-					frappe.bold(formatdate(self.actual_start_date)),
+					frappe.bold(start_date_str),
 				)
 			)
+
+
+	# def set_salary_structure(self):
+		
+	# 	self._salary_structure = frappe.db.get_value(
+	# 		"Salary Structure",
+	# 		{
+	# 			"employee": self.employee,
+	# 			"from_date": ("<=", self.actual_start_date),
+	# 			"is_active": "Yes",
+	# 		},
+	# 		"*",
+	# 		order_by="from_date desc",
+	# 		as_dict=True,
+	# 	)
+	# 	if not self._salary_structure:
+	# 		frappe.throw(
+	# 			_(
+	# 				"Please assign a Salary Structure for Employee {0} applicable from or before {1} first"
+	# 			).format(
+	# 				frappe.bold(self.employee_name),
+	# 				frappe.bold(formatdate(self.actual_start_date)),
+	# 			)
+	# 		)
 
 	def calculate_net_pay(self, skip_tax_breakup_computation: bool = False):
 		def set_gross_pay_and_base_gross_pay():
