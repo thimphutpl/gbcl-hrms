@@ -138,12 +138,14 @@
    "description": "Assigned automatically at approval; can be set manually.",
    "fieldname": "tagged_supervisor",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Tagged Supervisor",
    "options": "Employee"
   },
   {
    "fieldname": "event_approver",
    "fieldtype": "Link",
+   "hidden": 1,
    "label": "Approver (CFO)",
    "options": "User"
   },
@@ -151,6 +153,7 @@
    "default": "Draft",
    "fieldname": "approval_status",
    "fieldtype": "Select",
+   "hidden": 1,
    "label": "Approval Status",
    "no_copy": 1,
    "options": "Draft\nApproved\nRejected",
@@ -162,6 +165,7 @@
    "description": "Reference number assigned on CFO approval.",
    "fieldname": "approved_ref_number",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Approved Ref Number",
    "no_copy": 1
   },
