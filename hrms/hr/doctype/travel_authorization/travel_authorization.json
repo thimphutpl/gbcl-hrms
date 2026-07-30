@@ -21,8 +21,10 @@
   "travel_type",
   "column_break_djfc",
   "purpose_of_travel",
-  "column_break_xlsv",
+  "section_break_mode",
   "mode_of_travel",
+  "column_break_xlsv",
+  "travel_purpose_remarks",
   "section_break_dgmb",
   "travellers_detail",
   "section_break_tvvk",
@@ -163,8 +165,8 @@
    "fieldtype": "Column Break"
   },
   {
-   "fieldname": "column_break_xlsv",
-   "fieldtype": "Column Break"
+   "fieldname": "section_break_mode",
+   "fieldtype": "Section Break"
   },
   {
    "fieldname": "mode_of_travel",
@@ -172,6 +174,15 @@
    "label": "Mode of Travel",
    "options": "\nOffice Car\nPersonal Car\nPublic Transport\nFlight",
    "reqd": 1
+  },
+  {
+   "fieldname": "column_break_xlsv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "travel_purpose_remarks",
+   "fieldtype": "Small Text",
+   "label": "Additional details"
   },
   {
    "fieldname": "employee_information_section",
@@ -279,7 +290,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-16 16:20:00.000000",
+ "modified": "2026-07-30 11:05:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",
