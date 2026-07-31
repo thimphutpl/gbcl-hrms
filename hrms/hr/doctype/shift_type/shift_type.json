@@ -8,6 +8,7 @@
  "field_order": [
   "start_time",
   "end_time",
+  "ip",
   "column_break_3",
   "holiday_list",
   "color",
@@ -173,10 +174,15 @@
    "fieldtype": "Select",
    "label": "Roster Color",
    "options": "Blue\nCyan\nFuchsia\nGreen\nLime\nOrange\nPink\nRed\nViolet\nYellow"
+  },
+  {
+   "fieldname": "ip",
+   "fieldtype": "Data",
+   "label": "Ip"
   }
  ],
  "links": [],
- "modified": "2024-05-17 15:48:27.191003",
+ "modified": "2026-07-31 16:37:42.832053",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Shift Type",

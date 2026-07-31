@@ -78,12 +78,14 @@
   {
    "fieldname": "device_id",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Location / Device ID"
   },
   {
    "default": "0",
    "fieldname": "skip_auto_attendance",
    "fieldtype": "Check",
+   "hidden": 1,
    "label": "Skip Auto Attendance"
   },
   {
@@ -167,7 +169,7 @@
   }
  ],
  "links": [],
- "modified": "2024-05-29 21:19:11.550766",
+ "modified": "2026-06-25 16:25:50.086571",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Employee Checkin",

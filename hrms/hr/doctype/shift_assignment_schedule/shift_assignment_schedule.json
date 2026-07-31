@@ -11,13 +11,18 @@
   "column_break_iprq",
   "enabled",
   "create_shifts_after",
+  "end_date",
   "shift_details_section",
   "employee",
   "employee_name",
   "shift_type",
   "column_break_toss",
   "company",
-  "shift_status"
+  "attendance_location",
+  "shift_status",
+  "section_break_ggze",
+  "get_all_employee",
+  "shift_assignment_schedule_employee"
  ],
  "fields": [
   {
@@ -40,10 +45,10 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "hidden": 1,
    "in_standard_filter": 1,
    "label": "Employee",
-   "options": "Employee",
-   "reqd": 1
+   "options": "Employee"
   },
   {
    "fetch_from": "employee.company",
@@ -51,7 +56,6 @@
    "fieldtype": "Link",
    "label": "Company",
    "options": "Company",
-   "read_only": 1,
    "reqd": 1
   },
   {
@@ -75,6 +79,7 @@
    "fetch_from": "employee.employee_name",
    "fieldname": "employee_name",
    "fieldtype": "Data",
+   "hidden": 1,
    "label": "Employee Name",
    "read_only": 1
   },
@@ -107,6 +112,32 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Active\nInactive"
+  },
+  {
+   "fieldname": "section_break_ggze",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "get_all_employee",
+   "fieldtype": "Button",
+   "label": "Get All Employee"
+  },
+  {
+   "fieldname": "shift_assignment_schedule_employee",
+   "fieldtype": "Table",
+   "label": "Shift Assignment Schedule Employee",
+   "options": "Shift Assignment Schedule Employee"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "attendance_location",
+   "fieldtype": "Link",
+   "label": "Attendance Location",
+   "options": "Attendance Location"
   }
  ],
  "index_web_pages_for_search": 1,
@@ -116,7 +147,7 @@
    "link_fieldname": "schedule"
   }
  ],
- "modified": "2024-06-27 14:37:31.797684",
+ "modified": "2026-05-25 12:12:11.673679",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Shift Assignment Schedule",

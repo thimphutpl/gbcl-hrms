@@ -302,7 +302,41 @@ class ShiftType(Document):
 		if is_holiday(holiday_list, attendance_date):
 			return False
 		return True
+def update_last_sync_of_checkin():
+    """Called from hooks"""
+    shifts = frappe.get_all(
+        "Shift Type",
+        filters={"enable_auto_attendance": 1, "auto_update_last_sync": 1},
+        fields=["name", "last_sync_of_checkin", "start_time", "end_time"],
+    )
+    current_datetime = frappe.flags.current_datetime or get_datetime()
 
+    for shift in shifts:
+        shift_end = get_actual_shift_end(shift, current_datetime)
+        update_last_sync = False
+
+        if not shift.last_sync_of_checkin or get_datetime(shift.last_sync_of_checkin) < shift_end:
+            update_last_sync = True
+
+        if update_last_sync:
+            frappe.db.set_value(
+                "Shift Type",
+                shift.name,
+                "last_sync_of_checkin",
+                shift_end + timedelta(minutes=1)
+            )
+
+
+def get_actual_shift_end(shift, current_datetime):
+	time_within_shift = datetime.combine(current_datetime.date(), get_time(shift.start_time))
+	shift_details = get_shift_details(shift.name, time_within_shift)
+	actual_shift_start = shift_details["actual_start"]
+	actual_shift_end = shift_details["actual_end"]
+
+	if (actual_shift_start.date() < actual_shift_end.date()) or (current_datetime < actual_shift_start):
+		# shift start and end are on different days
+		actual_shift_end = add_days(actual_shift_end, -1)
+	return actual_shift_end
 
 def process_auto_attendance_for_all_shifts():
 	shift_list = frappe.get_all("Shift Type", filters={"enable_auto_attendance": "1"}, pluck="name")
