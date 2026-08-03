@@ -165,6 +165,10 @@ fixtures = [
 		"dt": "Custom Field",
 		"filters": [["name", "in", ["Company-travel_journal_account"]]],
 	},
+	{
+		"dt": "Translation",
+		"filters": [["source_text", "in", ["Travel Authorization"]]],
+	},
 ]
 
 # Document Events

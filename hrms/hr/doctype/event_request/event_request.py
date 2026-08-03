@@ -71,7 +71,7 @@ class EventRequest(Document):
 			self.cost_breakdown = []
 
 		breakdown_total = 0.0
-		for row in self.get("cost_breakdown"):
+		for row in self.get("cost_breakdoset_currencywn"):
 			self.round_floats_in(row)
 			breakdown_total += flt(row.amount)
 

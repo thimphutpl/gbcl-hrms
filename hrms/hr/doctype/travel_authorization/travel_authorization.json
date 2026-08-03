@@ -198,7 +198,6 @@
    "read_only": 1
   },
   {
-   "collapsible": 1,
    "fieldname": "currency_section",
    "fieldtype": "Section Break",
    "label": "Currency"
@@ -267,13 +266,13 @@
   {
    "fieldname": "miscellaneous_item",
    "fieldtype": "Table",
-   "label": "Miscellaneous Item",
+   "label": "Estimated Cost",
    "options": "Travel Miscellaneous"
   },
   {
    "fieldname": "total_miscellaneous_amount",
    "fieldtype": "Currency",
-   "label": "Total Miscellaneous",
+   "label": "Total Estimated Cost",
    "no_copy": 1,
    "options": "currency",
    "read_only": 1
@@ -290,7 +289,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-07-30 11:05:00.000000",
+ "modified": "2026-08-03 17:10:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",

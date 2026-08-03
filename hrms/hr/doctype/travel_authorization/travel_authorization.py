@@ -193,7 +193,7 @@ class TravelAuthorization(Document):
 		for d in rows:
 			if d.party_type == "Employee" and d.party == employee:
 				out.append(d)
-			elif employee == self.employee and d.party_type == "Others":
+			elif employee == self.employee and d.party_type == "MQDC":
 				out.append(d)
 		return out
 
@@ -329,7 +329,7 @@ class TravelAuthorization(Document):
 
 	def validate_duplicate_entry(self):
 		for (party_type, party), items in self.get_itinerary_groups().items():
-			if party_type == "Others" or not items:
+			if party_type == "MQDC" or not items:
 				continue
 
 			employee = party or self.employee

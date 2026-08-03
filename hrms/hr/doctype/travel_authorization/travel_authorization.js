@@ -1,16 +1,25 @@
 // Copyright (c) 2025, Frappe Technologies Pvt. Ltd. and contributors
 // For license information, please see license.txt
 
-// show traveller links as "Name (ID)" instead of bare ID
+// on traveller rows, show the full name instead of the bare ID once selected.
+// scoped to rows that carry a party_type so Employee links elsewhere are untouched.
 const traveller_link_formatter = function (value, doc) {
-	let name = doc && (doc.traveller_name || doc.full_name || doc.employee_name);
-	if (value && name && name !== value) {
-		return `${name} (${value})`;
+	if (doc && doc.party_type) {
+		let name = doc.traveller_name || doc.full_name || doc.employee_name;
+		// fall back to a live lookup on the parent's Travellers Detail so the
+		// name shows even before the row's own name field is populated
+		if (!name && cur_frm && cur_frm.doc && cur_frm.doc.travellers_detail) {
+			let m = cur_frm.doc.travellers_detail.find(
+				(d) => d.party_type === doc.party_type && String(d.party) === String(value)
+			);
+			if (m) name = m.full_name;
+		}
+		if (name) return name;
 	}
 	return value;
 };
 frappe.form.link_formatters["Employee"] = traveller_link_formatter;
-frappe.form.link_formatters["Others"] = traveller_link_formatter;
+frappe.form.link_formatters["MQDC"] = traveller_link_formatter;
 
 // new rows keep the traveller of the previous row, so one traveller's
 // itinerary/miscellaneous can be entered without re-selecting each time
@@ -215,12 +224,34 @@ frappe.ui.form.on("Travel Authorization", {
 	},
 });
 
+// re-render the grid that holds this child row so the link cell repaints with
+// the traveller's name (the formatter needs the name field populated first)
+const TRAVELLER_GRID = {
+	"Travellers Item": "travellers_detail",
+	"Travel Authorization Item": "items",
+	"Travel Miscellaneous": "miscellaneous_item",
+};
+function refresh_traveller_grid(frm, cdt) {
+	let fn = TRAVELLER_GRID[cdt];
+	if (fn && frm.fields_dict[fn]) frm.fields_dict[fn].grid.refresh();
+}
+
+// repaint the itinerary + cost grids so their Traveller cells pick up a name
+// that just became available in Travellers Detail
+function refresh_dependent_grids(frm) {
+	["items", "miscellaneous_item"].forEach((fn) => {
+		if (frm.fields_dict[fn]) frm.fields_dict[fn].grid.refresh();
+	});
+}
+
 function set_traveller_name(frm, cdt, cdn) {
 	let row = locals[cdt][cdn];
 	let match = (frm.doc.travellers_detail || []).find(
 		(d) => d.party_type === row.party_type && d.party === row.party
 	);
-	frappe.model.set_value(cdt, cdn, "traveller_name", match ? match.full_name : "");
+	Promise.resolve(
+		frappe.model.set_value(cdt, cdn, "traveller_name", match ? match.full_name : "")
+	).then(() => refresh_traveller_grid(frm, cdt));
 }
 
 frappe.ui.form.on("Travel Miscellaneous", {
@@ -228,8 +259,13 @@ frappe.ui.form.on("Travel Miscellaneous", {
 		inherit_traveller(frm, cdt, cdn, "miscellaneous_item");
 	},
 
-	amount: function (frm) {
+	amount: function (frm, cdt, cdn) {
 		frm.events.calc_misc_total(frm);
+		refresh_traveller_grid(frm, cdt);
+	},
+
+	miscellaneous_type: function (frm, cdt, cdn) {
+		refresh_traveller_grid(frm, cdt);
 	},
 
 	miscellaneous_item_remove: function (frm) {
@@ -254,6 +290,14 @@ frappe.ui.form.on("Travel Authorization Item", {
 		frappe.model.set_value(cdt, cdn, "party", "");
 	},
 
+	travel_from: function (frm, cdt, cdn) {
+		refresh_traveller_grid(frm, cdt);
+	},
+
+	travel_to: function (frm, cdt, cdn) {
+		refresh_traveller_grid(frm, cdt);
+	},
+
 	from_date: function(frm, cdt, cdn) {
 		let child = locals[cdt][cdn];
 		if (!child.halt && child.from_date != child.to_date) {
@@ -261,6 +305,7 @@ frappe.ui.form.on("Travel Authorization Item", {
 				frappe.model.set_value(cdt, cdn, "to_date", child.from_date);
 			}
 		}
+		refresh_traveller_grid(frm, cdt);
 	},
 
 	to_date: function(frm, cdt, cdn) {
@@ -271,6 +316,7 @@ frappe.ui.form.on("Travel Authorization Item", {
 				frappe.model.set_value(cdt, cdn, "to_date", child.from_date);
 			}
 		}
+		refresh_traveller_grid(frm, cdt);
 	},
 });
 
@@ -288,16 +334,20 @@ frappe.ui.form.on('Travellers Item', {
                 if (r.message) {
                     frappe.model.set_value(cdt, cdn, "full_name", r.message.employee_name);
                     frappe.model.set_value(cdt, cdn, "designation", r.message.designation);
+                    refresh_traveller_grid(frm, cdt);
+                    refresh_dependent_grids(frm);
                 }
             });
         }
-		if (row.party_type === "Others" && row.party) {
+		if (row.party_type === "MQDC" && row.party) {
 
-			frappe.db.get_value("Others", row.party, ["full_name", "designation"])
+			frappe.db.get_value("MQDC", row.party, ["full_name", "designation"])
 				.then(r => {
 					if (r && r.message) {
 						frappe.model.set_value(cdt, cdn, "full_name", r.message.full_name);
 						frappe.model.set_value(cdt, cdn, "designation", r.message.designation);
+						refresh_traveller_grid(frm, cdt);
+						refresh_dependent_grids(frm);
 					}
 				});
 		}
