@@ -5,7 +5,9 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cint, get_datetime
+from frappe.utils import cint, get_datetime,today,now_datetime
+import ipaddress
+import requests
 
 from hrms.hr.doctype.shift_assignment.shift_assignment import get_actual_start_end_datetime_of_shift
 from hrms.hr.utils import (
@@ -21,27 +23,78 @@ class CheckinRadiusExceededError(frappe.ValidationError):
 
 class EmployeeCheckin(Document):
 	def validate(self):
+
 		validate_active_employee(self.employee)
+		self.validate_checkin_date()
 		self.validate_duplicate_log()
+		
 		self.fetch_shift()
+		# self.validate_ip_address()
 		self.set_geolocation()
 		self.validate_distance_from_shift_location()
 
+	# def validate_duplicate_log(self):
+	# 	doc = frappe.db.exists(
+	# 		"Employee Checkin",
+	# 		{
+	# 			"employee": self.employee,
+	# 			"time": self.time,
+	# 			"name": ("!=", self.name),
+	# 			"log_type": self.log_type,
+	# 		},
+	# 	)
+	# 	if doc:
+	# 		doc_link = frappe.get_desk_link("Employee Checkin", doc)
+	# 		frappe.throw(
+	# 			_("This employee already has a log with the same timestamp.{0}").format("<Br>" + doc_link)
+	# 		)
+	def validate_checkin_date(self):
+		# Convert check-in time to datetime object
+		checkin_time = get_datetime(self.time)
+		current_time = now_datetime()
+
+		# Only allow check-in for today or future
+		if checkin_time.date() < current_time.date():
+			frappe.throw(
+				_("You cannot create check-in for past dates.")
+			)
 	def validate_duplicate_log(self):
-		doc = frappe.db.exists(
+		# doc = frappe.db.exists(
+		# 	"Employee Checkin",
+		# 	{
+		# 		"employee": self.employee,
+		# 		"time": self.time,
+		# 		"name": ("!=", self.name),
+		# 		"log_type": self.log_type,
+		# 	},
+		# )
+		# if doc:
+		# 	doc_link = frappe.get_desk_link("Employee Checkin", doc)
+		# 	frappe.throw(
+		# 		_("This employee already has a log with the same timestamp.{0}").format("<Br>" + doc_link)
+		# 	)
+		existing_checkin = frappe.db.exists(
 			"Employee Checkin",
 			{
 				"employee": self.employee,
-				"time": self.time,
-				"name": ("!=", self.name),
 				"log_type": self.log_type,
+				"name": ("!=", self.name),
+				"time": ["between", [
+				today() + " 00:00:00",
+				today() + " 23:59:59"
+			]]
 			},
 		)
-		if doc:
-			doc_link = frappe.get_desk_link("Employee Checkin", doc)
+
+		if existing_checkin:
+		# Get the full document to access the time
+			doc = frappe.get_doc("Employee Checkin", existing_checkin)
 			frappe.throw(
-				_("This employee already has a log with the same timestamp.{0}").format("<Br>" + doc_link)
+				_("You already checked {0} at {1}").format(
+					self.log_type, doc.time.strftime("%d-%m-%Y %H:%M:%S")
+				)
 			)
+	
 
 	@frappe.whitelist()
 	def set_geolocation(self):
@@ -102,7 +155,6 @@ class EmployeeCheckin(Document):
 		)
 		if checkin_radius <= 0:
 			return
-
 		distance = get_distance_between_coordinates(latitude, longitude, self.latitude, self.longitude)
 		if distance > checkin_radius:
 			frappe.throw(
