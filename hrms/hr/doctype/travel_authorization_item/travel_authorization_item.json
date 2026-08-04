@@ -56,13 +56,11 @@
   },
   {
    "columns": 2,
-   "depends_on": "eval:!doc.halt;",
    "fieldname": "travel_from",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Travel From",
-   "mandatory_depends_on": "eval:!doc.halt;",
-   "read_only_depends_on": "eval:doc.halt;"
+   "mandatory_depends_on": "eval:!doc.halt;"
   },
   {
    "fieldname": "column_break_qqwh",
@@ -78,13 +76,11 @@
   },
   {
    "columns": 2,
-   "depends_on": "eval:!doc.halt;",
    "fieldname": "travel_to",
    "fieldtype": "Data",
    "in_list_view": 1,
    "label": "Travel To",
-   "mandatory_depends_on": "eval:!doc.halt;",
-   "read_only_depends_on": "eval:doc.halt;"
+   "mandatory_depends_on": "eval:!doc.halt;"
   },
   {
    "fieldname": "column_break_cwok",
@@ -129,7 +125,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-03 17:40:00.000000",
+ "modified": "2026-08-04 16:45:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization Item",
