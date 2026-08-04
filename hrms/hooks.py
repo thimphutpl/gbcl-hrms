@@ -169,6 +169,10 @@ fixtures = [
 		"dt": "Translation",
 		"filters": [["source_text", "in", ["Travel Authorization"]]],
 	},
+	{
+		"dt": "Property Setter",
+		"filters": [["name", "in", ["Employee-main-show_title_field_in_link"]]],
+	},
 ]
 
 # Document Events
