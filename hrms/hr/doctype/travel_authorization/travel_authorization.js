@@ -233,15 +233,21 @@ const TRAVELLER_GRID = {
 };
 function refresh_traveller_grid(frm, cdt) {
 	let fn = TRAVELLER_GRID[cdt];
-	if (fn && frm.fields_dict[fn]) frm.fields_dict[fn].grid.refresh();
+	if (fn && frm.fields_dict[fn]) {
+		// defer so the row that was just edited finishes its own render first;
+		// refreshing immediately leaves the active cell showing the bare ID
+		setTimeout(() => frm.fields_dict[fn].grid.refresh(), 100);
+	}
 }
 
 // repaint the itinerary + cost grids so their Traveller cells pick up a name
 // that just became available in Travellers Detail
 function refresh_dependent_grids(frm) {
-	["items", "miscellaneous_item"].forEach((fn) => {
-		if (frm.fields_dict[fn]) frm.fields_dict[fn].grid.refresh();
-	});
+	setTimeout(() => {
+		["items", "miscellaneous_item"].forEach((fn) => {
+			if (frm.fields_dict[fn]) frm.fields_dict[fn].grid.refresh();
+		});
+	}, 100);
 }
 
 function set_traveller_name(frm, cdt, cdn) {
