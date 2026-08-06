@@ -24,6 +24,7 @@
   "working_hours_threshold_for_absent",
   "process_attendance_after",
   "last_sync_of_checkin",
+  "auto_update_last_sync",
   "grace_period_settings_auto_attendance_section",
   "enable_late_entry_marking",
   "late_entry_grace_period",
@@ -147,7 +148,8 @@
    "description": "Last Known Successful Sync of Employee Checkin. Reset this only if you are sure that all Logs are synced from all the locations. Please don't modify this if you are unsure.",
    "fieldname": "last_sync_of_checkin",
    "fieldtype": "Datetime",
-   "label": "Last Sync of Checkin"
+   "label": "Last Sync of Checkin",
+   "read_only_depends_on": "auto_update_last_sync"
   },
   {
    "default": "0",
@@ -179,10 +181,16 @@
    "fieldname": "ip",
    "fieldtype": "Data",
    "label": "Ip"
+  },
+  {
+   "default": "0",
+   "fieldname": "auto_update_last_sync",
+   "fieldtype": "Check",
+   "label": " Automatically update Last Sync of Checkin"
   }
  ],
  "links": [],
- "modified": "2026-07-31 16:37:42.832053",
+ "modified": "2026-08-06 18:22:35.489051",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Shift Type",
