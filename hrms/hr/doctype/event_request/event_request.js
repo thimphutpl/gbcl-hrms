@@ -74,8 +74,43 @@ frappe.ui.form.on("Event Request", {
 				__("View")
 			);
 		}
+
+		// Approval actions — only on a SUBMITTED, still-pending request, for approver roles
+		if (frm.doc.docstatus === 1 && frm.doc.approval_status === "Draft" && can_approve()) {
+			frm.add_custom_button(__("Approve"), () => approve_event_request(frm)).addClass(
+				"btn-primary"
+			);
+			frm.add_custom_button(__("Reject"), () => reject_event_request(frm)).addClass("btn-danger");
+		}
 	},
 });
+
+function can_approve() {
+	const roles = frappe.user_roles || [];
+	return ["System Manager", "HR Manager", "HR User", "Expense Approver"].some((r) =>
+		roles.includes(r)
+	);
+}
+
+function approve_event_request(frm) {
+	frappe.confirm(
+		__("Approve this Event Request? A Journal Entry will be posted for the estimated cost."),
+		() => {
+			frm.call("approve").then(() => frm.reload_doc());
+		}
+	);
+}
+
+function reject_event_request(frm) {
+	frappe.prompt(
+		[{ label: __("Reason for Rejection"), fieldname: "reason", fieldtype: "Small Text", reqd: 1 }],
+		(values) => {
+			frm.call("reject", { reason: values.reason }).then(() => frm.reload_doc());
+		},
+		__("Reject Event Request"),
+		__("Reject")
+	);
+}
 
 frappe.ui.form.on("Event Request Cost Breakdown", {
 	amount: (frm) => calculate_total(frm),

@@ -49,17 +49,44 @@ class EventRequest(Document):
 			share_doc_with_approver(self, self.event_approver)
 
 	def on_submit(self):
-		if self.approval_status == "Draft":
-			frappe.throw(_("Approval Status must be 'Approved' or 'Rejected' before submitting."))
-
-		if self.approval_status == "Approved":
-			self.make_journal_entry()
-
+		# Submitting only files the request as "pending approval" — no ledger impact.
+		# The Journal Entry is posted later, when an approver calls approve().
 		self.set_status(update=True)
 
 	def on_cancel(self):
 		self.cancel_journal_entry()
 		self.set_status(update=True)
+
+	def validate_approver(self):
+		allowed = {"System Manager", "HR Manager", "HR User", "Expense Approver"}
+		if not allowed.intersection(set(frappe.get_roles())):
+			frappe.throw(_("You are not permitted to approve or reject Event Requests."))
+
+	@frappe.whitelist()
+	def approve(self):
+		self.validate_approver()
+		if self.docstatus != 1:
+			frappe.throw(_("Submit the Event Request before approving it."))
+
+		if self.approval_status != "Approved":
+			self.db_set("approval_status", "Approved")
+
+		# Post the Journal Entry now (once) — this is the only place it is created.
+		if not self.journal_entry:
+			self.make_journal_entry()
+
+		self.set_status(update=True)
+
+	@frappe.whitelist()
+	def reject(self, reason=None):
+		self.validate_approver()
+		if self.docstatus != 1:
+			frappe.throw(_("Submit the Event Request before rejecting it."))
+
+		self.db_set("approval_status", "Rejected")
+		self.set_status(update=True)
+		if reason:
+			self.add_comment("Comment", _("Rejected: {0}").format(reason))
 
 	def set_currency(self):
 		if not self.currency:
@@ -71,7 +98,7 @@ class EventRequest(Document):
 			self.cost_breakdown = []
 
 		breakdown_total = 0.0
-		for row in self.get("cost_breakdoset_currencywn"):
+		for row in self.get("cost_breakdown"):
 			self.round_floats_in(row)
 			breakdown_total += flt(row.amount)
 
