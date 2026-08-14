@@ -93,10 +93,10 @@
    "columns": 2,
    "fieldname": "dsa",
    "fieldtype": "Currency",
-   "in_list_view": 1,
+   "hidden": 1,
    "label": "DSA",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "column_break_mwyx",
@@ -114,11 +114,11 @@
    "columns": 1,
    "fieldname": "dsa_percent",
    "fieldtype": "Select",
-   "in_list_view": 1,
+   "hidden": 1,
    "label": "DSA (%)",
    "options": "100\n70\n50\n20\n0",
    "read_only": 1,
-   "reqd": 1
+   "reqd": 0
   },
   {
    "fieldname": "column_break_djke",
@@ -128,7 +128,7 @@
    "columns": 1,
    "fieldname": "no_of_days",
    "fieldtype": "Int",
-   "in_list_view": 1,
+   "hidden": 1,
    "label": "Days",
    "read_only": 1
   },
@@ -167,7 +167,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2025-03-04 16:24:44.768528",
+ "modified": "2026-08-13 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Claim Item",

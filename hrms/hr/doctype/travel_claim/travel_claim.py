@@ -24,7 +24,58 @@ from frappe.utils import (
 	now_datetime
 )
 from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
-from hrms.hr.doctype.travel_authorization.travel_authorization import get_claimant_employee
+from hrms.hr.doctype.travel_authorization.travel_authorization import get_claimant_employee, is_privileged
+
+# Travel Claim workflow: Employee submits -> Director verifies -> CFO approves
+# (approval creates the Journal Entry). Each approver should only see claims
+# currently awaiting THEIR OWN stage, not the full history of every claim.
+CLAIM_APPROVAL_STAGES = {
+	"Director": "Waiting for Verification",
+	"CFO": "Waiting Approval",
+}
+
+
+def get_permission_query_conditions(user):
+	user = user or frappe.session.user
+	if is_privileged(user):
+		return None
+	roles = set(frappe.get_roles(user))
+	states = {state for role, state in CLAIM_APPROVAL_STAGES.items() if role in roles}
+	if states:
+		clauses = " or ".join(
+			"`tabTravel Claim`.workflow_state = {0}".format(frappe.db.escape(s)) for s in states
+		)
+		return "({0})".format(clauses)
+	return None
+
+
+def has_permission(doc, ptype, user):
+	"""Controller permission hooks can only DENY, never grant beyond what the
+	standard role/user-permission engine already allows (frappe.permissions
+	.has_controller_permissions). So this only narrows an approver's broad
+	DocType-level access down to claims pending THEIR OWN stage; every other
+	user (including an employee opening their own claim) is left to the
+	standard engine by returning None.
+
+	The state-based narrowing only applies to READ-family ptypes. It must NOT
+	gate write/submit: apply_workflow() sets workflow_state to the *next*
+	state before calling doc.submit(), so by the time a write permission
+	check runs here the state has already moved past the approver's pending
+	stage. Frappe's own transition engine (transition.allowed in
+	get_transitions) already restricts who can perform which action,
+	independently and before any state mutation, so deferring (None) for
+	write-type ptypes is safe."""
+	if is_privileged(user):
+		return True
+	if not doc or doc.is_new():
+		return None
+	roles = set(frappe.get_roles(user))
+	states = {state for role, state in CLAIM_APPROVAL_STAGES.items() if role in roles}
+	if states:
+		if ptype in ("read", "print", "email", "select"):
+			return doc.workflow_state in states
+		return None
+	return None
 
 class TravelClaim(Document):
 	def validate(self):
@@ -380,17 +431,7 @@ def get_travel_claim(dt, dn):
 			title=_("Already Claimed"),
 		)
 
-	claimant_name, employee_grade = frappe.db.get_value("Employee", claimant, ["employee_name", "grade"])
-	dsa = frappe.db.get_value("Employee Grade", employee_grade, "dsa")
-	if not dsa:
-		frappe.throw(
-			"Daily Subsistence Allowance (DSA) is not set for Employee Grade: {}. Please update it.".format(
-				frappe.get_desk_link("Employee Grade", employee_grade)
-			),
-			title="Missing DSA Configuration"
-		)
-
-	return_day_dsa = frappe.db.get_single_value("HR Settings", "return_day_dsa")
+	claimant_name = frappe.db.get_value("Employee", claimant, "employee_name")
 
 	items = doc.rows_for_claimant(claimant, "items")
 	if not items:
@@ -410,15 +451,8 @@ def get_travel_claim(dt, dn):
 	tc.cost_center = doc.cost_center
 
 	for d in items:
+		# amount is filled in manually by the employee; no DSA auto-calculation
 		item = d.as_dict()
-		if d.is_last_day == 1:
-			item["dsa_percent"] = return_day_dsa if return_day_dsa else 100
-			item["dsa"] = flt(dsa) * flt(item["dsa_percent"])/100
-		else:
-			item["dsa_percent"] = 100
-			item["dsa"] = dsa
-		item["no_of_days"] = date_diff(d.to_date, d.from_date) + 1
-		item["amount"] = flt(item["no_of_days"]) * flt(item["dsa"])
 		tc.append("items", item)
 
 	for d in doc.rows_for_claimant(claimant, "travellers_detail"):

@@ -45,6 +45,54 @@ function inherit_traveller(frm, cdt, cdn, table) {
 	frm.refresh_field(table);
 }
 
+// relabel "Add Row" -> "Add" and make it black (low-contrast complaint on some
+// devices), scoped only to this form's grids via a marker class on frm.wrapper.
+// Pure CSS so it survives every grid re-render without re-running JS.
+function apply_add_button_styling(frm) {
+	const STYLE_ID = "hrms-travel-add-btn-style";
+	if (!document.getElementById(STYLE_ID)) {
+		const style = document.createElement("style");
+		style.id = STYLE_ID;
+		style.textContent = `
+			.hrms-travel-add-btn .grid-add-row {
+				color: transparent !important;
+				background-color: #000 !important;
+				border-color: #000 !important;
+				position: relative;
+			}
+			.hrms-travel-add-btn .grid-add-row::after {
+				content: "${__("Add")}";
+				position: absolute;
+				inset: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #fff;
+			}
+			/* row editor footer: "Insert Below" (grid-append-row) is the actual
+			   add-a-row action here, already at the bottom — just relabel it.
+			   The "..." chevron near the top is Collapse, left untouched. */
+			.hrms-travel-add-btn .grid-footer-toolbar .grid-append-row {
+				color: transparent !important;
+				background-color: #000 !important;
+				border-color: #000 !important;
+				position: relative;
+			}
+			.hrms-travel-add-btn .grid-footer-toolbar .grid-append-row::after {
+				content: "${__("Add")}";
+				position: absolute;
+				inset: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: #fff;
+			}
+		`;
+		document.head.appendChild(style);
+	}
+	$(frm.wrapper).addClass("hrms-travel-add-btn");
+}
+
 frappe.ui.form.on("Travel Authorization", {
 	setup: function (frm) {
 		frm.set_query("employee", function () {
@@ -73,25 +121,10 @@ frappe.ui.form.on("Travel Authorization", {
 
 	refresh(frm) {
 		frm.events.calc_misc_total(frm);
-
-		// once the request is Approved, the Create actions are hidden
-		if (frm.doc.workflow_state === "Approved") return;
+		apply_add_button_styling(frm);
 
 		frm.call("has_travel_claim").then((r) => {
 			if (!r.message.has_travel_claim) {
-				if (
-					frm.doc.docstatus === 1 &&
-					frappe.model.can_create("Travel Advance")
-				) {
-					frm.add_custom_button(
-						__("Advance"),
-						function () {
-							frm.events.make_travel_advance(frm);
-						},
-						__("Create"),
-					);
-				}
-
 				if (
 					frm.doc.docstatus === 1 &&
 					frappe.model.can_create("Travel Claim")
@@ -149,21 +182,6 @@ frappe.ui.form.on("Travel Authorization", {
 		frappe.model.open_mapped_doc({
 			method: "hrms.hr.doctype.travel_adjustment.travel_adjustment.make_travel_adjustment",
 			frm: cur_frm,
-		});
-	},
-
-	make_travel_advance: function (frm) {
-		let method = "hrms.hr.doctype.travel_advance.travel_advance.make_travel_advance";
-		return frappe.call({
-			method: method,
-			args: {
-				dt: frm.doc.doctype,
-				dn: frm.doc.name,
-			},
-			callback: function (r) {
-				var doclist = frappe.model.sync(r.message);
-				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
-			},
 		});
 	},
 

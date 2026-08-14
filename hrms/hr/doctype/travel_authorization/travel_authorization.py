@@ -27,6 +27,14 @@ from erpnext.custom_workflow import validate_workflow_states, notify_workflow_st
 
 PRIVILEGED_ROLES = {"System Manager", "HR Manager", "HR User"}
 
+# Travel Request workflow: Employee submits -> Director verifies -> CFO approves
+# (no Journal Entry here; that only happens when the Travel Claim is approved).
+# Director has full oversight of every request regardless of status; CFO only
+# needs to see requests currently awaiting their approval.
+DIRECTOR_ROLE = "Director"
+CFO_ROLE = "CFO"
+CFO_PENDING_STATE = "Waiting Approval"
+
 
 def get_session_employee(user=None):
 	user = user or frappe.session.user
@@ -38,6 +46,19 @@ def get_session_employee(user=None):
 def is_privileged(user=None):
 	user = user or frappe.session.user
 	return user == "Administrator" or bool(PRIVILEGED_ROLES & set(frappe.get_roles(user)))
+
+
+def can_view_all_travel(user=None):
+	"""Privileged HR roles plus Director may see every travel request, any status."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return True
+	return bool((PRIVILEGED_ROLES | {DIRECTOR_ROLE}) & set(frappe.get_roles(user)))
+
+
+def is_cfo(user=None):
+	user = user or frappe.session.user
+	return CFO_ROLE in frappe.get_roles(user)
 
 
 class TravelAuthorization(Document):
@@ -57,114 +78,11 @@ class TravelAuthorization(Document):
 	def on_update(self):
 		self.validate_duplicate_entry()
 
-	def on_submit(self):
-		self.create_travel_journal_entry()
-
-	def on_update_after_submit(self):
-		self.create_travel_journal_entry()
-
 	def on_cancel(self):
 		self.set_status(update=True)
-		self.cancel_travel_journal_entry()
 
 	def calculate_miscellaneous_total(self):
 		self.total_miscellaneous_amount = sum(flt(m.amount) for m in self.get("miscellaneous_item", []))
-
-	def create_travel_journal_entry(self):
-		"""On approval, post a DRAFT Journal Entry for the miscellaneous items:
-		one credit (party) line per item, balanced by a debit to the company's
-		travel expense account. The party account is taken from the Company."""
-		if self.workflow_state != "Approved" or self.journal_entry:
-			return
-
-		misc = [m for m in self.get("miscellaneous_item", []) if flt(m.amount)]
-		if not misc:
-			return
-
-		if not self.company:
-			frappe.throw(_("Company is required to create the Journal Entry."))
-
-		payable_account = frappe.db.get_value("Company", self.company, "travel_journal_account")
-		if not payable_account:
-			frappe.throw(
-				_("Please set <b>Travel Journal Account</b> in the Accounts tab of {0}.").format(
-					frappe.get_desk_link("Company", self.company)
-				),
-				title=_("Missing Travel Journal Account"),
-			)
-
-		expense_field = "domestic_travel_expense" if self.travel_type == "Domestic" else "international_travel_expense"
-		expense_account = frappe.db.get_value("Company", self.company, expense_field)
-		if not expense_account:
-			frappe.throw(
-				_("Please set the {0} Travel Expense account in {1}.").format(
-					self.travel_type, frappe.get_desk_link("Company", self.company)
-				),
-				title=_("Missing Travel Expense Account"),
-			)
-
-		cost_center = self.cost_center or frappe.db.get_value("Employee", self.employee, "cost_center")
-		conversion = flt(self.exchange_rate) or 1.0
-		total = sum(flt(m.amount) for m in misc) * conversion
-
-		je = frappe.new_doc("Journal Entry")
-		je.voucher_type = "Journal Entry"
-		je.naming_series = "Journal Voucher"
-		je.company = self.company
-		je.posting_date = nowdate()
-		je.branch = self.branch
-		je.user_remark = _("Travel miscellaneous against {0}").format(self.name)
-
-		# debit: travel expense (total)
-		je.append("accounts", {
-			"account": expense_account,
-			"cost_center": cost_center,
-			"debit_in_account_currency": total,
-			"debit": total,
-			"reference_type": "Travel Authorization",
-			"reference_name": self.name,
-		})
-
-		# credit: one party line per miscellaneous item (e.g. 700, 800)
-		for m in misc:
-			amount = flt(m.amount) * conversion
-			line = {
-				"account": payable_account,
-				"cost_center": cost_center,
-				"credit_in_account_currency": amount,
-				"credit": amount,
-				"reference_type": "Travel Authorization",
-				"reference_name": self.name,
-			}
-			if m.party_type == "Employee" and m.party:
-				line["party_type"] = "Employee"
-				line["party"] = m.party
-			je.append("accounts", line)
-
-		je.flags.ignore_permissions = 1
-		je.insert()  # left as a draft (docstatus 0)
-
-		self.db_set("journal_entry", je.name)
-		frappe.msgprint(
-			_("Draft {0} created for travel miscellaneous.").format(
-				frappe.get_desk_link("Journal Entry", je.name)
-			),
-			alert=True,
-		)
-
-	def cancel_travel_journal_entry(self):
-		if not self.journal_entry or not frappe.db.exists("Journal Entry", self.journal_entry):
-			return
-		docstatus = frappe.db.get_value("Journal Entry", self.journal_entry, "docstatus")
-		if docstatus == 1:
-			je = frappe.get_doc("Journal Entry", self.journal_entry)
-			je.cancel()
-			frappe.msgprint(_("Journal Entry {0} cancelled.").format(self.journal_entry), alert=True)
-		elif docstatus == 0:
-			# still a draft — remove it so it isn't left orphaned
-			frappe.delete_doc("Journal Entry", self.journal_entry, ignore_permissions=True)
-			frappe.msgprint(_("Draft Journal Entry {0} deleted.").format(self.journal_entry), alert=True)
-		self.db_set("journal_entry", None)
 
 	def set_status(self, update=False):
 		status_map = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
@@ -245,7 +163,7 @@ class TravelAuthorization(Document):
 			return
 
 		user = frappe.session.user
-		if is_privileged(user) or user in (self.owner, self.approver):
+		if can_view_all_travel(user) or user in (self.owner, self.approver):
 			return
 
 		employee = get_session_employee(user)
@@ -412,13 +330,18 @@ def get_claimant_employee(doc):
 def get_permission_query_conditions(user):
 	if not user:
 		user = frappe.session.user
-	if is_privileged(user):
+	if can_view_all_travel(user):
 		return None
 
 	conditions = [
 		"`tabTravel Authorization`.owner = {user}".format(user=frappe.db.escape(user)),
 		"`tabTravel Authorization`.approver = {user}".format(user=frappe.db.escape(user)),
 	]
+
+	if is_cfo(user):
+		conditions.append(
+			"`tabTravel Authorization`.workflow_state = {state}".format(state=frappe.db.escape(CFO_PENDING_STATE))
+		)
 
 	employee = get_session_employee(user)
 	if employee:
@@ -436,11 +359,23 @@ def get_permission_query_conditions(user):
 
 
 def has_permission(doc, ptype, user):
-	if is_privileged(user):
+	if can_view_all_travel(user):
 		return True
 	if not doc or doc.is_new():
 		return True
 	if user in (doc.owner, doc.approver):
+		return True
+
+	if is_cfo(user):
+		# Only narrow READ-family visibility to the pending stage. Do NOT gate
+		# write/submit this way: apply_workflow() sets workflow_state to the
+		# *next* state before calling doc.submit(), so by the time a write
+		# permission check runs here the state has already moved past
+		# CFO_PENDING_STATE. Frappe's own transition engine (transition.allowed
+		# in get_transitions) already restricts who can perform which action,
+		# independently and before any state mutation, so this is safe.
+		if ptype in ("read", "print", "email", "select"):
+			return doc.workflow_state == CFO_PENDING_STATE
 		return True
 
 	employee = get_session_employee(user)
