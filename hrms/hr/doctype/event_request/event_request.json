@@ -34,13 +34,14 @@
   "guests_section",
   "guests",
   "cost_section",
-  "currency",
-  "estimated_event_cost",
   "add_cost_breakdown",
-  "column_break_cost",
-  "cost_center",
   "breakdown_section",
   "cost_breakdown",
+  "cost_amounts_section",
+  "currency",
+  "estimated_event_cost",
+  "column_break_cost",
+  "cost_center",
   "total_estimated_cost",
   "justification_section",
   "justification",
@@ -249,7 +250,7 @@
    "options": "Currency"
   },
   {
-   "description": "When 'Add Cost Breakdown' is ticked, this is calculated from the breakdown table below.",
+   "description": "When 'Add Cost Breakdown' is ticked, this is calculated from the breakdown table above.",
    "fieldname": "estimated_event_cost",
    "fieldtype": "Currency",
    "in_list_view": 1,
@@ -277,11 +278,17 @@
    "options": "Cost Center"
   },
   {
+   "depends_on": "eval:doc.add_cost_breakdown",
    "fieldname": "total_estimated_cost",
    "fieldtype": "Currency",
    "label": "Total Estimated Cost",
    "options": "currency",
    "read_only": 1
+  },
+  {
+   "fieldname": "cost_amounts_section",
+   "fieldtype": "Section Break",
+   "label": "Amount"
   },
   {
    "depends_on": "eval:doc.add_cost_breakdown",
@@ -290,7 +297,7 @@
    "label": "Cost Breakdown"
   },
   {
-   "description": "Break the estimated cost down by item — e.g. venue, catering, transport, accommodation. The total updates Estimated Cost above.",
+   "description": "Break the estimated cost down by item — e.g. venue, catering, transport, accommodation. The total updates the Estimated Cost below.",
    "fieldname": "cost_breakdown",
    "fieldtype": "Table",
    "label": "Cost Breakdown",
