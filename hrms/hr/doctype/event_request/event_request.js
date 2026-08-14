@@ -75,20 +75,34 @@ frappe.ui.form.on("Event Request", {
 			);
 		}
 
-		// Approval actions — only on a SUBMITTED, still-pending request, for approver roles
-		if (frm.doc.docstatus === 1 && frm.doc.approval_status === "Draft" && can_approve()) {
-			frm.add_custom_button(__("Approve"), () => approve_event_request(frm)).addClass(
-				"btn-primary"
-			);
+		// Director step: verify a submitted request so it goes to the CFO
+		if (frm.doc.docstatus === 1 && frm.doc.status === "Pending Verification" && has_role(VERIFIER_ROLES)) {
+			frm.add_custom_button(__("Verify"), () => verify_event_request(frm)).addClass("btn-primary");
+			frm.add_custom_button(__("Reject"), () => reject_event_request(frm)).addClass("btn-danger");
+		}
+
+		// CFO step: approve a verified request (posts the Journal Entry)
+		if (frm.doc.docstatus === 1 && frm.doc.status === "Pending Approval" && has_role(APPROVER_ROLES)) {
+			frm.add_custom_button(__("Approve"), () => approve_event_request(frm)).addClass("btn-primary");
 			frm.add_custom_button(__("Reject"), () => reject_event_request(frm)).addClass("btn-danger");
 		}
 	},
 });
 
-function can_approve() {
-	const roles = frappe.user_roles || [];
-	return ["System Manager", "HR Manager", "HR User", "Expense Approver"].some((r) =>
-		roles.includes(r)
+const VERIFIER_ROLES = ["System Manager", "HR Manager", "Director"];
+const APPROVER_ROLES = ["System Manager", "HR Manager", "CFO"];
+
+function has_role(roles) {
+	const mine = frappe.user_roles || [];
+	return roles.some((r) => mine.includes(r));
+}
+
+function verify_event_request(frm) {
+	frappe.confirm(
+		__("Verify this Event Request and send it to the CFO for approval?"),
+		() => {
+			frm.call("verify").then(() => frm.reload_doc());
+		}
 	);
 }
 

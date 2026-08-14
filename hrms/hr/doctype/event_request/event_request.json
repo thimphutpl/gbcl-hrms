@@ -39,9 +39,9 @@
   "add_cost_breakdown",
   "column_break_cost",
   "cost_center",
-  "total_estimated_cost",
   "breakdown_section",
   "cost_breakdown",
+  "total_estimated_cost",
   "justification_section",
   "justification",
   "accounting_tab",
@@ -374,7 +374,7 @@
    "in_standard_filter": 1,
    "label": "Status",
    "no_copy": 1,
-   "options": "Draft\nSubmitted\nApproved\nRejected\nCancelled",
+   "options": "Draft\nPending Verification\nPending Approval\nApproved\nRejected\nCancelled",
    "print_hide": 1,
    "read_only": 1
   },
@@ -455,6 +455,22 @@
    "write": 1
   },
   {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Director",
+   "share": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "CFO",
+   "share": 1
+  },
+  {
    "permlevel": 1,
    "read": 1,
    "role": "HR Manager",
@@ -483,8 +499,12 @@
    "title": "Draft"
   },
   {
-   "color": "Blue",
-   "title": "Submitted"
+   "color": "Orange",
+   "title": "Pending Verification"
+  },
+  {
+   "color": "Yellow",
+   "title": "Pending Approval"
   },
   {
    "color": "Green",

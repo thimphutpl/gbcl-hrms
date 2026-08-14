@@ -136,10 +136,13 @@ permission_query_conditions = {
 	# "Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
     "Leave Application": "hrms.hr.doctype.leave_application.leave_application.get_permission_query_conditions",
     "Travel Authorization": "hrms.hr.doctype.travel_authorization.travel_authorization.get_permission_query_conditions",
+    "Travel Claim": "hrms.hr.doctype.travel_claim.travel_claim.get_permission_query_conditions",
+    "Event Request": "hrms.hr.doctype.event_request.event_request.get_permission_query_conditions",
 }
 
 has_permission = {
 	"Travel Authorization": "hrms.hr.doctype.travel_authorization.travel_authorization.has_permission",
+	"Travel Claim": "hrms.hr.doctype.travel_claim.travel_claim.has_permission",
 }
 
 has_upload_permission = {"Employee": "erpnext.setup.doctype.employee.employee.has_upload_permission"}
@@ -172,6 +175,10 @@ fixtures = [
 	{
 		"dt": "Property Setter",
 		"filters": [["name", "in", ["Employee-main-show_title_field_in_link"]]],
+	},
+	{
+		"dt": "Workflow",
+		"filters": [["name", "in", ["TA authoriation", "Travel Claim"]]],
 	},
 ]
 

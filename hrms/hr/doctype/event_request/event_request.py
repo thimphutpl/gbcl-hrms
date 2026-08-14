@@ -5,7 +5,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import cstr, flt
+from frappe.utils import flt
 
 import erpnext
 
@@ -28,7 +28,8 @@ class EventRequest(Document):
 		self.set_currency()
 		self.calculate_total_estimated_cost()
 		self.set_default_accounts()
-		self.set_status()
+		if self.docstatus == 0:
+			self.status = "Draft"
 
 	def warn_if_requester_not_authorized(self):
 		"""Advisory only — flags requesters below Head of Department level."""
@@ -48,43 +49,56 @@ class EventRequest(Document):
 		if self.event_approver:
 			share_doc_with_approver(self, self.event_approver)
 
+	# Workflow: Employee submits -> Director verifies -> CFO approves (posts JE)
+	VERIFIER_ROLES = {"System Manager", "HR Manager", "Director"}
+	APPROVER_ROLES = {"System Manager", "HR Manager", "CFO"}
+
 	def on_submit(self):
-		# Submitting only files the request as "pending approval" — no ledger impact.
-		# The Journal Entry is posted later, when an approver calls approve().
-		self.set_status(update=True)
+		# Filed for Director verification — no ledger impact yet.
+		self.db_set("status", "Pending Verification")
 
 	def on_cancel(self):
 		self.cancel_journal_entry()
-		self.set_status(update=True)
+		self.db_set("status", "Cancelled")
 
-	def validate_approver(self):
-		allowed = {"System Manager", "HR Manager", "HR User", "Expense Approver"}
-		if not allowed.intersection(set(frappe.get_roles())):
-			frappe.throw(_("You are not permitted to approve or reject Event Requests."))
+	def has_any_role(self, roles):
+		return bool(roles & set(frappe.get_roles()))
+
+	@frappe.whitelist()
+	def verify(self):
+		"""Director step: move a submitted request on to CFO approval."""
+		if not self.has_any_role(self.VERIFIER_ROLES):
+			frappe.throw(_("Only a Director can verify an Event Request."))
+		if self.docstatus != 1 or self.status != "Pending Verification":
+			frappe.throw(_("This Event Request is not pending verification."))
+
+		self.db_set("status", "Pending Approval")
+		self.add_comment("Comment", _("Verified by {0}").format(frappe.session.user))
 
 	@frappe.whitelist()
 	def approve(self):
-		self.validate_approver()
-		if self.docstatus != 1:
-			frappe.throw(_("Submit the Event Request before approving it."))
-
-		if self.approval_status != "Approved":
-			self.db_set("approval_status", "Approved")
+		"""CFO step: approve a verified request and post the Journal Entry."""
+		if not self.has_any_role(self.APPROVER_ROLES):
+			frappe.throw(_("Only the CFO can approve an Event Request."))
+		if self.docstatus != 1 or self.status != "Pending Approval":
+			frappe.throw(
+				_("This Event Request is not pending approval — it must be verified by a Director first.")
+			)
 
 		# Post the Journal Entry now (once) — this is the only place it is created.
 		if not self.journal_entry:
 			self.make_journal_entry()
-
-		self.set_status(update=True)
+		self.db_set("status", "Approved")
 
 	@frappe.whitelist()
 	def reject(self, reason=None):
-		self.validate_approver()
-		if self.docstatus != 1:
-			frappe.throw(_("Submit the Event Request before rejecting it."))
+		"""Director or CFO can reject while the request is pending."""
+		if not self.has_any_role(self.VERIFIER_ROLES | self.APPROVER_ROLES):
+			frappe.throw(_("You are not permitted to reject Event Requests."))
+		if self.docstatus != 1 or self.status not in ("Pending Verification", "Pending Approval"):
+			frappe.throw(_("This Event Request cannot be rejected at its current stage."))
 
-		self.db_set("approval_status", "Rejected")
-		self.set_status(update=True)
+		self.db_set("status", "Rejected")
 		if reason:
 			self.add_comment("Comment", _("Rejected: {0}").format(reason))
 
@@ -127,20 +141,6 @@ class EventRequest(Document):
 			self.payable_account = defaults.get("default_expense_claim_payable_account")
 		if not self.cost_center:
 			self.cost_center = defaults.get("cost_center")
-
-	def set_status(self, update=False):
-		status = {"0": "Draft", "1": "Submitted", "2": "Cancelled"}[cstr(self.docstatus or 0)]
-
-		if self.docstatus == 1:
-			if self.approval_status == "Approved":
-				status = "Approved"
-			elif self.approval_status == "Rejected":
-				status = "Rejected"
-
-		if update:
-			self.db_set("status", status)
-		else:
-			self.status = status
 
 	def make_journal_entry(self):
 		"""Post an accrual Journal Entry for the approved estimated event cost."""
@@ -244,3 +244,22 @@ class EventRequest(Document):
 			je.cancel()
 
 		self.db_set("journal_entry", None)
+
+
+def get_permission_query_conditions(user=None):
+	"""List-view visibility.
+
+	- Admin / HR / Director: see everything.
+	- CFO: only requests that need CFO approval (status = Pending Approval).
+	- Everyone else (requesters): only their own requests.
+	"""
+	user = user or frappe.session.user
+	roles = set(frappe.get_roles(user))
+
+	if roles & {"System Manager", "HR Manager", "HR User", "Director"}:
+		return ""
+
+	if "CFO" in roles:
+		return "`tabEvent Request`.`status` = 'Pending Approval'"
+
+	return "`tabEvent Request`.`owner` = {0}".format(frappe.db.escape(user))
