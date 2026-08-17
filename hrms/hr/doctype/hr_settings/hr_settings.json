@@ -72,9 +72,11 @@
   "enote_section",
   "enote_approval_notification",
   "enote_copyto_notification",
+  "material_request_status_notification_template",
   "column_break_wcru",
   "enote_status_notification",
-  "enote_reviewer_notification"
+  "enote_reviewer_notification",
+  "material_request_approval_notification_template"
  ],
  "fields": [
   {
@@ -481,13 +483,25 @@
    "fieldtype": "Link",
    "label": "HRGM",
    "options": "Employee"
+  },
+  {
+   "fieldname": "material_request_status_notification_template",
+   "fieldtype": "Link",
+   "label": "Material Request Status Notification Template",
+   "options": "Email Template"
+  },
+  {
+   "fieldname": "material_request_approval_notification_template",
+   "fieldtype": "Link",
+   "label": "Material Request Approval Notification Template",
+   "options": "Email Template"
   }
  ],
  "icon": "fa fa-cog",
  "idx": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-05-16 13:07:18.678322",
+ "modified": "2026-08-10 10:28:26.570245",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "HR Settings",
