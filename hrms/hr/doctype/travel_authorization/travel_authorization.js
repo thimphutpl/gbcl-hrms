@@ -122,6 +122,7 @@ frappe.ui.form.on("Travel Authorization", {
 	refresh(frm) {
 		frm.events.calc_misc_total(frm);
 		apply_add_button_styling(frm);
+		frm.events.lock_applicant_to_self(frm);
 
 		frm.call("has_travel_claim").then((r) => {
 			if (!r.message.has_travel_claim) {
@@ -161,6 +162,38 @@ frappe.ui.form.on("Travel Authorization", {
 			0,
 		);
 		frm.set_value("total_miscellaneous_amount", total);
+	},
+
+	// Applicant/Employee is always the logged-in user, no exceptions — auto-fill
+	// it and lock it, so it no longer depends on each Employee record having
+	// "Create User Permission" correctly configured. Nobody, including HR/System
+	// Manager, can file a request on someone else's behalf through this form.
+	// This is a UX convenience only — the real enforcement is server-side in
+	// validate(). "Administrator" is exempt since that's the raw system account
+	// used for scripts/imports, not a person filing a request.
+	lock_applicant_to_self: function (frm) {
+		if (frappe.session.user === "Administrator") return;
+
+		if (frm.is_new() && !frm.doc.employee) {
+			frappe.db.get_value(
+				"Employee",
+				{ user_id: frappe.session.user },
+				"name",
+			).then((r) => {
+				if (r.message && r.message.name) {
+					frm.set_value("employee", r.message.name).then(() => {
+						// lock only after the value (and its fetched name/title)
+						// has fully resolved and rendered — locking too early
+						// leaves the read-only display blank
+						frm.set_df_property("employee", "read_only", 1);
+						frm.refresh_field("employee");
+					});
+				}
+			});
+		} else if (frm.doc.employee) {
+			frm.set_df_property("employee", "read_only", 1);
+			frm.refresh_field("employee");
+		}
 	},
 
 	make_travel_claim: function (frm) {
