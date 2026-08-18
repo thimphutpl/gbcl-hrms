@@ -67,6 +67,7 @@ class TravelAuthorization(Document):
 
 	def validate(self):
 		validate_active_employee(self.employee)
+		self.validate_applicant_is_self()
 		self.sync_traveller_tags()
 		self.validate_travel_dates()
 		self.validate_travel_last_day()
@@ -74,6 +75,23 @@ class TravelAuthorization(Document):
 		self.calculate_miscellaneous_total()
 		self.set_status()
 		# validate_workflow_states(self)
+
+	def validate_applicant_is_self(self):
+		"""Applicant/Employee must always be the logged-in user, no exceptions —
+		nobody, including HR/System Manager, may file a Travel Request on behalf
+		of someone else. This is the real enforcement; the JS read-only lock is
+		only a convenience on top of it. "Administrator" is exempt since that's
+		the raw system account used for scripts/imports, not a person filing
+		a request."""
+		if frappe.session.user == "Administrator":
+			return
+		employee = get_session_employee()
+		if employee and self.employee != employee:
+			frappe.throw(
+				_("You can only create a Travel Request for yourself."),
+				frappe.PermissionError,
+				title=_("Not Allowed"),
+			)
 
 	def on_update(self):
 		self.validate_duplicate_entry()
