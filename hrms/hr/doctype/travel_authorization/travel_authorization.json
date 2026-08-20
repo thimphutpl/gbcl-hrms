@@ -59,6 +59,7 @@
   {
    "fieldname": "employee",
    "fieldtype": "Link",
+   "ignore_user_permissions": 1,
    "in_list_view": 1,
    "in_standard_filter": 1,
    "label": "Applicant/Employee",
@@ -288,7 +289,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-14 15:00:00.000000",
+ "modified": "2026-08-18 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",

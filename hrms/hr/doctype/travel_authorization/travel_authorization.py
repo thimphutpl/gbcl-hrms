@@ -78,12 +78,17 @@ class TravelAuthorization(Document):
 
 	def validate_applicant_is_self(self):
 		"""Applicant/Employee must always be the logged-in user, no exceptions —
-		nobody, including HR/System Manager, may file a Travel Request on behalf
-		of someone else. This is the real enforcement; the JS read-only lock is
-		only a convenience on top of it. "Administrator" is exempt since that's
-		the raw system account used for scripts/imports, not a person filing
-		a request."""
+		nobody, including HR/System Manager, may file (or reassign) a Travel
+		Request on behalf of someone else. Only checked when the document is
+		being created or the employee field is actually being changed — NOT on
+		every subsequent save, otherwise a Director/CFO verifying or approving
+		someone else's already-created request would be wrongly blocked. This
+		is the real enforcement; the JS read-only lock is only a convenience on
+		top of it. "Administrator" is exempt since that's the raw system
+		account used for scripts/imports, not a person filing a request."""
 		if frappe.session.user == "Administrator":
+			return
+		if not (self.is_new() or self.has_value_changed("employee")):
 			return
 		employee = get_session_employee()
 		if employee and self.employee != employee:
