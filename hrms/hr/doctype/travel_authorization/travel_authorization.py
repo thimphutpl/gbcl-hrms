@@ -324,7 +324,6 @@ class TravelAuthorization(Document):
 		if not self.exchange_rate and self.travel_type != 'Domestic':
 			frappe.throw(_("Exchange Rate cannot be zero."), title="Missing Exchange Rate")
 
-	@frappe.whitelist()
 	def has_travel_claim(self) -> dict[str, bool]:
 		filters = {"docstatus": ("<", 2), "travel_authorization": self.name}
 
@@ -335,6 +334,21 @@ class TravelAuthorization(Document):
 		return {
 			"has_travel_claim": bool(frappe.db.exists("Travel Claim", filters))
 		}
+
+
+@frappe.whitelist()
+def has_travel_claim(dt, dn) -> dict[str, bool]:
+	"""Loaded fresh from the DB by (dt, dn) rather than called as a bound
+	document method on the client's in-memory copy of the doc. `frm.call()`
+	with a plain method name round-trips the client's own copy of the
+	document through `run_doc_method`, which reconstructs a Document from
+	that JSON and runs `check_if_latest()` -> for an already-submitted
+	document this always demands 'submit' permission, regardless of what
+	the called method actually needs -- wrongly blocking a read-only
+	traveller who is just viewing an approved request."""
+	doc = frappe.get_doc(dt, dn)
+	doc.check_permission("read")
+	return doc.has_travel_claim()
 
 
 def get_claimant_employee(doc):

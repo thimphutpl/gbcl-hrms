@@ -124,7 +124,10 @@ frappe.ui.form.on("Travel Authorization", {
 		apply_add_button_styling(frm);
 		frm.events.lock_applicant_to_self(frm);
 
-		frm.call("has_travel_claim").then((r) => {
+		frm.call({
+			method: "hrms.hr.doctype.travel_authorization.travel_authorization.has_travel_claim",
+			args: { dt: frm.doctype, dn: frm.docname },
+		}).then((r) => {
 			if (!r.message.has_travel_claim) {
 				if (
 					frm.doc.docstatus === 1 &&
