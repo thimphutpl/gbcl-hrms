@@ -181,8 +181,12 @@ class TravelAuthorization(Document):
 
 	def filter_rows_for_traveller(self):
 		"""A traveller (who is not the applicant, approver or an HR user) only
-		sees their own itinerary and miscellaneous rows on the form."""
-		if self.docstatus == 0 or self.is_new():
+		sees their own itinerary and miscellaneous rows on the form, at any
+		stage — not just once docstatus reaches 1 (the two-step workflow keeps
+		docstatus at 0 through both Waiting for Verification and Waiting
+		Approval, so gating on docstatus alone would never filter for a
+		pending request)."""
+		if self.is_new():
 			return
 
 		user = frappe.session.user
