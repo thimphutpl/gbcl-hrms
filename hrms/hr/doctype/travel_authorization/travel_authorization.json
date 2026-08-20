@@ -289,7 +289,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-18 12:00:00.000000",
+ "modified": "2026-08-20 11:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",
@@ -304,7 +304,11 @@
    "read": 1,
    "report": 1,
    "role": "Employee",
-   "share": 1,
+   "share": 1
+  },
+  {
+   "if_owner": 1,
+   "role": "Employee",
    "write": 1
   },
   {
