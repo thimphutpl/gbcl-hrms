@@ -4222,14 +4222,14 @@ class PayrollEntry(Document):
 		if employee_wise_accounting_enabled:
 			"""
 			employee_based_payroll_payable_entries = {
-			                'HREMP00004': {
-			                                'earnings': 83332.0,
-			                                'deductions': 2000.0
-			                },
-			                'HREMP00005': {
-			                                'earnings': 50000.0,
-			                                'deductions': 2000.0
-			                }
+							'HREMP00004': {
+											'earnings': 83332.0,
+											'deductions': 2000.0
+							},
+							'HREMP00005': {
+											'earnings': 50000.0,
+											'deductions': 2000.0
+							}
 			}
 			"""
 			for employee, employee_details in self.employee_based_payroll_payable_entries.items():
@@ -4401,7 +4401,9 @@ class PayrollEntry(Document):
 		# company_cc              = company.get("cost_center")
 		company_cc              = self.cost_center
 		default_employer_pf_account = company.get("employer_contribution_pf_account")
+
 		salary_component_pf     = "PF"
+		hc_component            = "Health Contribution"
 
 		if not default_bank_account:
 			frappe.throw(_("Please set default <b>Expense Bank Account</b> for processing branch {}")\
@@ -4441,6 +4443,7 @@ class PayrollEntry(Document):
 				remittance_gl_list = [salary_detail.gl_head, default_employer_pf_account] if salary_detail.salary_component == salary_component_pf else [salary_detail.gl_head]
 
 				for rem in remittance_gl_list:
+		
 					if rem == default_employer_pf_account:
 						for d in self.get_cc_wise_entries(salary_component_pf):
 							remittance_amount += flt(d.amount)
@@ -4456,6 +4459,22 @@ class PayrollEntry(Document):
 								"reference_type"			: self.doctype,
 								"reference_name"			: self.name,
 								"salary_component"			: salary_detail.salary_component
+							})
+					elif salary_detail.salary_component == hc_component:
+						for d in self.get_hc_cc_wise_entries(hc_component):
+							remittance_amount += flt(d.amount)
+
+							posting.setdefault(salary_detail.salary_component, []).append({
+								"account": rem,
+								"debit_in_account_currency": flt(d.amount),
+								"cost_center": d.cost_center,
+								"party_check": 0,
+								"account_type": d.account_type if d.party_type == "Employee" else "",
+								"party_type": d.party_type if d.party_type == "Employee" else "",
+								"party": d.party if d.party_type == "Employee" else "",
+								"reference_type": self.doctype,
+								"reference_name": self.name,
+								"salary_component": salary_detail.salary_component
 							})
 					else:
 						remittance_amount += flt(salary_detail.amount)
@@ -4473,6 +4492,7 @@ class PayrollEntry(Document):
 							"salary_component"			: salary_detail.salary_component
 						})
 				
+
 				posting.setdefault(salary_detail.salary_component, []).append({
 					"account"						: default_bank_account,
 					"credit_in_account_currency" 	: flt(remittance_amount),
@@ -4488,33 +4508,37 @@ class PayrollEntry(Document):
 
 		# To Bank
 		if posting.get("to_payables") and len(posting.get("to_payables")):
-			posting.setdefault("to_bank", []).append({
-				"account"       				: default_payable_account,
-				"debit_in_account_currency"		: flt(salary_slip_total),
-				"cost_center"   				: company_cc,
-				"party_check"   				: 0,
-				"reference_type"				: self.doctype,
-				"reference_name"				: self.name,
-				"salary_component"				: salary_detail.salary_component
-			})
-			posting.setdefault("to_bank", []).append({
-				"account"       				: default_bank_account,
-				"credit_in_account_currency"	: flt(salary_slip_total),
-				"cost_center"   				: company_cc,
-				"party_check"   				: 0,
-				"reference_type"				: self.doctype,
-				"reference_name"				: self.name,
-				"salary_component"				: salary_detail.salary_component
-			})
-			posting.setdefault("to_payables",[]).append({
-				"account"       				: default_payable_account,
-				"credit_in_account_currency" 	: flt(salary_slip_total),
-				"cost_center"  				 	: company_cc,
-				"party_check"   				: 0,
-				"reference_type"				: self.doctype,
-				"reference_name"				: self.name,
-				"salary_component"				: "Net Pay"
-			})
+			cost_center_totals = self.get_net_pay_cost_center_totals()
+			for cost_center, amount in cost_center_totals.items():
+		
+			
+				posting.setdefault("to_bank", []).append({
+					"account"       				: default_payable_account,
+					"debit_in_account_currency"		: flt(amount),
+					"cost_center"   				: cost_center,
+					"party_check"   				: 0,
+					"reference_type"				: self.doctype,
+					"reference_name"				: self.name,
+					"salary_component"				: salary_detail.salary_component
+				})
+				posting.setdefault("to_bank", []).append({
+					"account"       				: default_bank_account,
+					"credit_in_account_currency"	: flt(amount),
+					"cost_center"   				: cost_center,
+					"party_check"   				: 0,
+					"reference_type"				: self.doctype,
+					"reference_name"				: self.name,
+					"salary_component"				: salary_detail.salary_component
+				})
+				posting.setdefault("to_payables",[]).append({
+					"account"       				: default_payable_account,
+					"credit_in_account_currency" 	: flt(amount),
+					"cost_center"  				 	: cost_center,
+					"party_check"   				: 0,
+					"reference_type"				: self.doctype,
+					"reference_name"				: self.name,
+					"salary_component"				: "Net Pay"
+				})
 		# frappe.throw(frappe.as_json(posting))
 		if posting:
 			jv_name, v_title = None, ""
@@ -4696,7 +4720,94 @@ class PayrollEntry(Document):
 			order by t1.cost_center, sc.type, sc.name
 		""".format(self.fiscal_year, self.month, self.name),as_dict=1)
 		return result
+	def get_net_pay_cost_center_totals(self):
+		cost_center_totals = {}
 
+		salary_slips = frappe.get_all(
+			"Salary Slip",
+			filters={
+				"payroll_entry": self.name,
+				"docstatus": 1
+			},
+			fields=[
+				"name",
+				"employee",
+				"net_pay",
+				"cost_center"
+			]
+		)
+
+		for salary_slip in salary_slips:
+
+			cost_center = salary_slip.cost_center
+
+			# Fallback to Employee cost center
+			if not cost_center and salary_slip.employee:
+				cost_center = frappe.db.get_value(
+					"Employee",
+					salary_slip.employee,
+					"cost_center"
+				)
+
+			# Final fallback
+			if not cost_center:
+				cost_center = self.cost_center
+
+			if not cost_center:
+				continue
+
+			net_pay = flt(salary_slip.net_pay)
+
+			cost_center_totals[cost_center] = (
+				cost_center_totals.get(cost_center, 0) + net_pay
+			)
+
+		return cost_center_totals
+
+	def get_hc_cc_wise_entries(self, hc_component):
+		return frappe.db.sql("""
+			SELECT
+				t1.cost_center AS cost_center,
+				SUM(IFNULL(sd.amount,0)) AS amount,
+				sc.name AS salary_component,
+				sca.account AS gl_head,
+				'Other' AS account_type,
+				'Other' AS party_type,
+				'Other' AS party
+			FROM
+				`tabSalary Slip` t1,
+				`tabSalary Detail` sd,
+				`tabSalary Component` sc,
+				`tabSalary Component Account` sca
+			WHERE
+				t1.fiscal_year = %s
+				AND t1.month = %s
+				AND t1.docstatus = 1
+				AND t1.payroll_entry = %s
+				AND sd.parent = t1.name
+				AND sd.salary_component = %s
+				AND sc.name = sd.salary_component
+				AND sca.parent = sc.name
+				AND sca.company = t1.company
+				AND sd.amount > 0
+				AND EXISTS (
+					SELECT 1
+					FROM `tabPayroll Employee Detail` ped
+					WHERE ped.parent = t1.payroll_entry
+					AND ped.employee = t1.employee
+				)
+			GROUP BY
+				t1.cost_center,
+				sc.name,
+				sca.account
+			ORDER BY
+				t1.cost_center
+		""", (
+			self.fiscal_year,
+			self.month,
+			self.name,
+			hc_component
+		), as_dict=1)
 	def get_cc_wise_entries(self, salary_component_pf):
 		return frappe.db.sql("""
 			select
@@ -4894,13 +5005,13 @@ class PayrollEntry(Document):
 	def get_employee_and_attendance_details(self) -> list[dict]:
 		"""Returns a list of employee and attendance details like
 		[
-		        {
-		                "name": "HREMP00001",
-		                "date_of_joining": "2019-01-01",
-		                "relieving_date": "2022-01-01",
-		                "holiday_list": "Holiday List Company",
-		                "attendance_count": 22
-		        }
+				{
+						"name": "HREMP00001",
+						"date_of_joining": "2019-01-01",
+						"relieving_date": "2022-01-01",
+						"holiday_list": "Holiday List Company",
+						"attendance_count": 22
+				}
 		]
 		"""
 		employees = [emp.employee for emp in self.employees]
@@ -6022,14 +6133,14 @@ class PayrollEntry(Document):
 		if employee_wise_accounting_enabled:
 			"""
 			employee_based_payroll_payable_entries = {
-			                'HREMP00004': {
-			                                'earnings': 83332.0,
-			                                'deductions': 2000.0
-			                },
-			                'HREMP00005': {
-			                                'earnings': 50000.0,
-			                                'deductions': 2000.0
-			                }
+							'HREMP00004': {
+											'earnings': 83332.0,
+											'deductions': 2000.0
+							},
+							'HREMP00005': {
+											'earnings': 50000.0,
+											'deductions': 2000.0
+							}
 			}
 			"""
 			for employee, employee_details in self.employee_based_payroll_payable_entries.items():
@@ -6446,13 +6557,13 @@ class PayrollEntry(Document):
 	def get_employee_and_attendance_details(self) -> list[dict]:
 		"""Returns a list of employee and attendance details like
 		[
-		        {
-		                "name": "HREMP00001",
-		                "date_of_joining": "2019-01-01",
-		                "relieving_date": "2022-01-01",
-		                "holiday_list": "Holiday List Company",
-		                "attendance_count": 22
-		        }
+				{
+						"name": "HREMP00001",
+						"date_of_joining": "2019-01-01",
+						"relieving_date": "2022-01-01",
+						"holiday_list": "Holiday List Company",
+						"attendance_count": 22
+				}
 		]
 		"""
 		employees = [emp.employee for emp in self.employees]
