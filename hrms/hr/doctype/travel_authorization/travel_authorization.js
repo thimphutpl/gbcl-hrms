@@ -124,39 +124,38 @@ frappe.ui.form.on("Travel Authorization", {
 		apply_add_button_styling(frm);
 		frm.events.lock_applicant_to_self(frm);
 
-		frm.call({
-			method: "hrms.hr.doctype.travel_authorization.travel_authorization.has_travel_claim",
-			args: { dt: frm.doctype, dn: frm.docname },
-		}).then((r) => {
-			if (!r.message.has_travel_claim) {
-				if (
-					frm.doc.docstatus === 1 &&
-					frappe.model.can_create("Travel Claim")
-				) {
+		// the buttons below only ever apply to an already-approved (docstatus 1)
+		// request, so skip the round trip entirely for a new/pending document --
+		// this also sidesteps calling has_travel_claim with a not-yet-saved
+		// document name, which would 404 against the DB
+		if (frm.doc.docstatus === 1) {
+			frm.call({
+				method: "hrms.hr.doctype.travel_authorization.travel_authorization.has_travel_claim",
+				args: { dt: frm.doctype, dn: frm.docname },
+			}).then((r) => {
+				if (!r.message.has_travel_claim) {
+					if (frappe.model.can_create("Travel Claim")) {
+						frm.add_custom_button(
+							__("Travel Claim"),
+							function () {
+								frm.events.make_travel_claim(frm);
+							},
+							__("Create"),
+						);
+					}
 
-					frm.add_custom_button(
-						__("Travel Claim"),
-						function () {
-							frm.events.make_travel_claim(frm);
-						},
-						__("Create"),
-					);
+					if (frappe.model.can_create("Travel Adjustment")) {
+						cur_frm.add_custom_button(
+							__("Travel Adjustment"),
+							function () {
+								frm.events.make_travel_adjustment(frm);
+							},
+							__("Create")
+						);
+					}
 				}
-
-				if (
-					frm.doc.docstatus === 1 &&
-					frappe.model.can_create("Travel Adjustment")
-				) {
-					cur_frm.add_custom_button(
-						__("Travel Adjustment"),
-						function () {
-							frm.events.make_travel_adjustment(frm);
-						},
-						__("Create")
-					);
-				}
-			}
-		});
+			});
+		}
 	},
 
 	calc_misc_total: function (frm) {
