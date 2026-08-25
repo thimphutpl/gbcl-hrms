@@ -284,12 +284,24 @@ const TRAVELLER_GRID = {
 	"Travel Authorization Item": "items",
 	"Travel Miscellaneous": "miscellaneous_item",
 };
+// A grid.refresh() rebuilds every row control, which throws away whatever the
+// user is currently typing in an open cell or row editor. Only repaint once the
+// user has moved out of that grid, so a repaint can never eat a pending edit.
+function repaint_grid(frm, fieldname) {
+	let field = frm.fields_dict[fieldname];
+	if (!field || !field.grid) return;
+	let grid = field.grid;
+	if (grid.open_grid_row) return;
+	if (grid.wrapper && grid.wrapper[0] && $.contains(grid.wrapper[0], document.activeElement)) return;
+	grid.refresh();
+}
+
 function refresh_traveller_grid(frm, cdt) {
 	let fn = TRAVELLER_GRID[cdt];
 	if (fn && frm.fields_dict[fn]) {
 		// defer so the row that was just edited finishes its own render first;
 		// refreshing immediately leaves the active cell showing the bare ID
-		setTimeout(() => frm.fields_dict[fn].grid.refresh(), 100);
+		setTimeout(() => repaint_grid(frm, fn), 100);
 	}
 }
 
@@ -297,9 +309,7 @@ function refresh_traveller_grid(frm, cdt) {
 // that just became available in Travellers Detail
 function refresh_dependent_grids(frm) {
 	setTimeout(() => {
-		["items", "miscellaneous_item"].forEach((fn) => {
-			if (frm.fields_dict[fn]) frm.fields_dict[fn].grid.refresh();
-		});
+		["items", "miscellaneous_item"].forEach((fn) => repaint_grid(frm, fn));
 	}, 100);
 }
 
@@ -320,11 +330,6 @@ frappe.ui.form.on("Travel Miscellaneous", {
 
 	amount: function (frm, cdt, cdn) {
 		frm.events.calc_misc_total(frm);
-		refresh_traveller_grid(frm, cdt);
-	},
-
-	miscellaneous_type: function (frm, cdt, cdn) {
-		refresh_traveller_grid(frm, cdt);
 	},
 
 	miscellaneous_item_remove: function (frm) {
@@ -349,14 +354,6 @@ frappe.ui.form.on("Travel Authorization Item", {
 		frappe.model.set_value(cdt, cdn, "party", "");
 	},
 
-	travel_from: function (frm, cdt, cdn) {
-		refresh_traveller_grid(frm, cdt);
-	},
-
-	travel_to: function (frm, cdt, cdn) {
-		refresh_traveller_grid(frm, cdt);
-	},
-
 	from_date: function(frm, cdt, cdn) {
 		let child = locals[cdt][cdn];
 		if (!child.halt && child.from_date != child.to_date) {
@@ -364,7 +361,6 @@ frappe.ui.form.on("Travel Authorization Item", {
 				frappe.model.set_value(cdt, cdn, "to_date", child.from_date);
 			}
 		}
-		refresh_traveller_grid(frm, cdt);
 	},
 
 	to_date: function(frm, cdt, cdn) {
@@ -375,7 +371,6 @@ frappe.ui.form.on("Travel Authorization Item", {
 				frappe.model.set_value(cdt, cdn, "to_date", child.from_date);
 			}
 		}
-		refresh_traveller_grid(frm, cdt);
 	},
 });
 
