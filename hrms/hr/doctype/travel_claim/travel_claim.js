@@ -10,6 +10,21 @@ frappe.ui.form.on("Travel Claim", {
 	refresh(frm) {
 		refresh_html(frm);
 		frm.events.calc_misc_total(frm);
+		frm.events.relabel_misc_amount(frm);
+	},
+
+	// the "Amount" column's own currency formatting already follows frm.doc.currency
+	// (options: "currency" on the field), but the grid's column HEADER text is
+	// static -- relabel it so the header itself shows which currency is selected
+	relabel_misc_amount: function (frm) {
+		let grid = frm.fields_dict["miscellaneous_item"] && frm.fields_dict["miscellaneous_item"].grid;
+		if (!grid) return;
+		let label = frm.doc.currency ? __("Amount ({0})", [frm.doc.currency]) : __("Amount");
+		grid.update_docfield_property("amount", "label", label);
+		if (!grid.open_grid_row &&
+			!(grid.wrapper && grid.wrapper[0] && $.contains(grid.wrapper[0], document.activeElement))) {
+			grid.refresh();
+		}
 	},
 
 	calc_misc_total: function (frm) {
@@ -52,6 +67,7 @@ frappe.ui.form.on("Travel Claim", {
 	},
 
 	currency: function (frm) {
+		frm.events.relabel_misc_amount(frm);
 		if (frm.doc.currency) {
 			var from_currency = frm.doc.currency;
 			var company_currency;
