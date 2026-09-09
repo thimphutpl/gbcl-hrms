@@ -9,6 +9,29 @@ frappe.ui.form.on("Travel Claim", {
     
 	refresh(frm) {
 		refresh_html(frm);
+		frm.events.calc_misc_total(frm);
+	},
+
+	calc_misc_total: function (frm) {
+		let rate = flt(frm.doc.exchange_rate) || 1;
+		let total = 0;
+		let total_btn = 0;
+		(frm.doc.miscellaneous_item || []).forEach((row) => {
+			row.amount_in_btn = flt(row.amount) * rate;
+			total += flt(row.amount);
+			total_btn += flt(row.amount_in_btn);
+		});
+		frm.set_value("miscellaneous_amount", total);
+		frm.set_value("miscellaneous_amount_btn", total_btn);
+		let field = frm.fields_dict["miscellaneous_item"];
+		if (field && field.grid && !field.grid.open_grid_row &&
+			!(field.grid.wrapper && field.grid.wrapper[0] && $.contains(field.grid.wrapper[0], document.activeElement))) {
+			field.grid.refresh();
+		}
+	},
+
+	exchange_rate: function (frm) {
+		frm.events.calc_misc_total(frm);
 	},
 
 	employee: function (frm) {
@@ -65,6 +88,16 @@ frappe.ui.form.on("Travel Claim", {
 				);
 			},
 		});
+	},
+});
+
+frappe.ui.form.on("Travel Miscellaneous", {
+	amount: function (frm) {
+		frm.events.calc_misc_total(frm);
+	},
+
+	miscellaneous_item_remove: function (frm) {
+		frm.events.calc_misc_total(frm);
 	},
 });
 

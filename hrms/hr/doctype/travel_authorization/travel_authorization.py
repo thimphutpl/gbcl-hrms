@@ -105,7 +105,11 @@ class TravelAuthorization(Document):
 		self.set_status(update=True)
 
 	def calculate_miscellaneous_total(self):
+		rate = flt(self.exchange_rate) or 1
+		for m in self.get("miscellaneous_item", []):
+			m.amount_in_btn = flt(m.amount) * rate
 		self.total_miscellaneous_amount = sum(flt(m.amount) for m in self.get("miscellaneous_item", []))
+		self.total_miscellaneous_amount_btn = sum(flt(m.amount_in_btn) for m in self.get("miscellaneous_item", []))
 
 	def set_status(self, update=False):
 		status_map = {0: "Draft", 1: "Submitted", 2: "Cancelled"}

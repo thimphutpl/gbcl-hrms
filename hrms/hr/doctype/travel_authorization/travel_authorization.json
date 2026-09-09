@@ -32,6 +32,7 @@
   "section_break_hyla",
   "miscellaneous_item",
   "total_miscellaneous_amount",
+  "total_miscellaneous_amount_btn",
   "approver_detial_section",
   "approver",
   "column_break_aysp",
@@ -278,6 +279,14 @@
    "read_only": 1
   },
   {
+   "fieldname": "total_miscellaneous_amount_btn",
+   "fieldtype": "Currency",
+   "label": "Total Estimated Cost (BTN)",
+   "no_copy": 1,
+   "options": "company",
+   "read_only": 1
+  },
+  {
    "fieldname": "journal_entry",
    "fieldtype": "Link",
    "label": "Journal Entry",
@@ -289,7 +298,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-25 15:30:00.000000",
+ "modified": "2026-09-09 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Authorization",

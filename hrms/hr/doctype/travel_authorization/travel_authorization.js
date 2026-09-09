@@ -159,11 +159,20 @@ frappe.ui.form.on("Travel Authorization", {
 	},
 
 	calc_misc_total: function (frm) {
-		let total = (frm.doc.miscellaneous_item || []).reduce(
-			(sum, row) => sum + flt(row.amount),
-			0,
-		);
+		let rate = flt(frm.doc.exchange_rate) || 1;
+		let total = 0;
+		let total_btn = 0;
+		(frm.doc.miscellaneous_item || []).forEach((row) => {
+			row.amount_in_btn = flt(row.amount) * rate;
+			total += flt(row.amount);
+			total_btn += flt(row.amount_in_btn);
+		});
 		frm.set_value("total_miscellaneous_amount", total);
+		frm.set_value("total_miscellaneous_amount_btn", total_btn);
+		// repaint_grid is the same guarded helper used elsewhere in this file --
+		// a plain frm.refresh_field()/grid.refresh() here would rebuild the row
+		// controls and discard whatever the user is still typing mid-edit
+		repaint_grid(frm, "miscellaneous_item");
 	},
 
 	// Applicant/Employee is always the logged-in user, no exceptions — auto-fill
@@ -255,6 +264,10 @@ frappe.ui.form.on("Travel Authorization", {
 			}
 			frm.refresh_fields();
 		}
+	},
+
+	exchange_rate: function (frm) {
+		frm.events.calc_misc_total(frm);
 	},
 
 	set_exchange_rate: function (frm, from_currency, company_currency) {

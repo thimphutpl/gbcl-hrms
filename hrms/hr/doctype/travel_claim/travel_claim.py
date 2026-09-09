@@ -156,9 +156,13 @@ class TravelClaim(Document):
 			# 		title=_("Not Allowed"),
 			# 	)
 	def calculate_miscellaneous(self):
+		rate = flt(self.exchange_rate) or 1
 		self.miscellaneous_amount = 0
+		self.miscellaneous_amount_btn = 0
 		for i in self.miscellaneous_item:
+			i.amount_in_btn = flt(i.amount) * rate
 			self.miscellaneous_amount += i.amount
+			self.miscellaneous_amount_btn += i.amount_in_btn
 
 	def calculate_amount(self):
 		total, advance_amount = 0.0, 0.0

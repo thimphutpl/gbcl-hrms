@@ -37,6 +37,7 @@
   "advance_amount",
   "column_break_lbpf",
   "miscellaneous_amount",
+  "miscellaneous_amount_btn",
   "miscellaneous_claim_reason",
   "approver_detail_section",
   "approver",
@@ -266,7 +267,15 @@
   {
    "fieldname": "miscellaneous_amount",
    "fieldtype": "Currency",
-   "label": "Miscellaneous Amount"
+   "label": "Miscellaneous Amount",
+   "options": "currency"
+  },
+  {
+   "fieldname": "miscellaneous_amount_btn",
+   "fieldtype": "Currency",
+   "label": "Miscellaneous Amount (BTN)",
+   "options": "company",
+   "read_only": 1
   },
   {
    "fieldname": "column_break_lbpf",
@@ -338,7 +347,7 @@
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-25 15:00:00.000000",
+ "modified": "2026-09-09 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Claim",
