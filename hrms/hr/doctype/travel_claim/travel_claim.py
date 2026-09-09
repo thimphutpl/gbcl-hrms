@@ -270,14 +270,20 @@ class TravelClaim(Document):
 				"debit_in_account_currency": flt(i.amount),
 				"debit": flt(i.amount),
 			})
-			je.append("accounts", {
-				"account": expense_account,
-				"reference_type": "Travel Claim",
-				"reference_name": self.name,
-				"cost_center": self.cost_center,
-				"debit_in_account_currency": flt(self.total_amount)-flt(self.miscellaneous_amount),
-				"debit": flt(self.total_amount)-flt(self.miscellaneous_amount),
-			})
+			non_misc_amount = flt(self.total_amount) - flt(self.miscellaneous_amount)
+			if non_misc_amount:
+				# a claim can be entirely miscellaneous costs (itinerary rows
+				# left at 0, e.g. an Office Car trip with no per-leg fare) --
+				# posting this row anyway would debit and credit 0, which
+				# Frappe's Journal Entry rejects as "cannot both be zero"
+				je.append("accounts", {
+					"account": expense_account,
+					"reference_type": "Travel Claim",
+					"reference_name": self.name,
+					"cost_center": self.cost_center,
+					"debit_in_account_currency": non_misc_amount,
+					"debit": non_misc_amount,
+				})
 
 		else:
 			je.append("accounts", {
