@@ -156,6 +156,11 @@ class TravelClaim(Document):
 			# 		title=_("Not Allowed"),
 			# 	)
 	def calculate_miscellaneous(self):
+		# see the matching guard/comment in Travel Authorization's
+		# calculate_miscellaneous_total -- must check _action, not docstatus,
+		# since docstatus is already 1 during the actual Approve/submit action
+		if getattr(self, "_action", None) == "update_after_submit":
+			return
 		rate = flt(self.exchange_rate) or 1
 		self.miscellaneous_amount = 0
 		self.miscellaneous_amount_btn = 0

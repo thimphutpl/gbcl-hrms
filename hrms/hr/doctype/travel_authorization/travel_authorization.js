@@ -171,6 +171,13 @@ frappe.ui.form.on("Travel Authorization", {
 	},
 
 	calc_misc_total: function (frm) {
+		// once submitted these amounts are final -- the server-computed values
+		// from the last save are authoritative, and total_miscellaneous_amount_btn
+		// is not allow_on_submit, so writing to it here would throw "Cannot
+		// Update After Submit" the moment this recompute finds any drift (e.g.
+		// an older document saved before this field existed, still at 0)
+		if (frm.doc.docstatus === 1) return;
+
 		let rate = flt(frm.doc.exchange_rate) || 1;
 		let total = 0;
 		let total_btn = 0;

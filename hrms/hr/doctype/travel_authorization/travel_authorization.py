@@ -105,6 +105,16 @@ class TravelAuthorization(Document):
 		self.set_status(update=True)
 
 	def calculate_miscellaneous_total(self):
+		# Skip only on a later save of an ALREADY-submitted doc (e.g. an
+		# allow_on_submit field update) so a drifted recompute can't throw
+		# "Cannot Update After Submit" on total_miscellaneous_amount_btn, which
+		# is not allow_on_submit. Must NOT skip on self.docstatus == 1 alone --
+		# Document.submit() sets docstatus to 1 *before* calling save(), so by
+		# the time validate() runs during the actual submit action docstatus is
+		# already 1; gating on that would skip the calculation on every
+		# approval and the totals would never get computed at all.
+		if getattr(self, "_action", None) == "update_after_submit":
+			return
 		rate = flt(self.exchange_rate) or 1
 		for m in self.get("miscellaneous_item", []):
 			m.amount_in_btn = flt(m.amount) * rate

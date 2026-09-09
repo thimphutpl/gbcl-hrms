@@ -28,6 +28,12 @@ frappe.ui.form.on("Travel Claim", {
 	},
 
 	calc_misc_total: function (frm) {
+		// once submitted (Approved) these amounts are final and
+		// miscellaneous_amount_btn is not allow_on_submit -- writing here would
+		// throw "Cannot Update After Submit" for any older claim saved before
+		// this field existed, still sitting at 0
+		if (frm.doc.docstatus === 1) return;
+
 		let rate = flt(frm.doc.exchange_rate) || 1;
 		let total = 0;
 		let total_btn = 0;
