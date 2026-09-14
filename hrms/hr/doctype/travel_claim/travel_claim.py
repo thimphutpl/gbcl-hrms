@@ -24,7 +24,11 @@ from frappe.utils import (
 	now_datetime
 )
 from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
-from hrms.hr.doctype.travel_authorization.travel_authorization import get_claimant_employee, is_privileged
+from hrms.hr.doctype.travel_authorization.travel_authorization import (
+	autoname_by_cost_center_prefix,
+	get_claimant_employee,
+	is_privileged,
+)
 
 # Travel Claim workflow: Employee submits -> Director verifies -> CFO approves
 # (approval creates the Journal Entry). Each approver should only see claims
@@ -78,6 +82,9 @@ def has_permission(doc, ptype, user):
 	return None
 
 class TravelClaim(Document):
+	def autoname(self):
+		autoname_by_cost_center_prefix(self, "TC", "TC")
+
 	def validate(self):
 		self.validate_duplicate_claim()
 		self.get_advance()

@@ -21,11 +21,41 @@ from frappe.utils import (
 	getdate,
 	money_in_words,
 	rounded,
-	nowdate
+	nowdate,
+	now_datetime
 )
 from erpnext.custom_workflow import validate_workflow_states, notify_workflow_states
+from frappe.model.naming import getseries
 
 PRIVILEGED_ROLES = {"System Manager", "HR Manager", "HR User"}
+
+
+def autoname_by_cost_center_prefix(doc, doctype_marker, default_prefix):
+	"""Name `doc` as <cost-center-prefix>-YY-MM-#### (falling back to
+	`default_prefix`, e.g. "TA"/"TC", when the chosen cost center has no
+	Prefix set).
+
+	When a cost center prefix IS set, `doctype_marker` keeps Travel
+	Authorization and Travel Claim counting independently even if they end up
+	sharing the same visible prefix: Frappe's naming series counter is keyed
+	purely off the literal text before the numeric placeholder
+	(frappe.model.naming.getseries), with no doctype awareness, so two
+	doctypes resolving to an identical prefix would otherwise silently share
+	-- and interleave -- one counter.
+
+	In the fallback case the series key is left exactly as it was before this
+	function existed ("TA-YY-MM-" / "TC-YY-MM-", no marker) so numbering
+	continues from the real, already-existing counter instead of colliding
+	with documents named under the old scheme."""
+	cost_center = doc.cost_center or frappe.db.get_value("Branch", doc.branch, "cost_center")
+	custom_prefix = cost_center and frappe.db.get_value("Cost Center", cost_center, "prefix")
+	prefix = custom_prefix or default_prefix
+
+	now = now_datetime()
+	yy, mm = now.strftime("%y"), now.strftime("%m")
+	series_key = f"{doctype_marker}:{prefix}-{yy}-{mm}-" if custom_prefix else f"{prefix}-{yy}-{mm}-"
+	number = getseries(series_key, 4)
+	doc.name = f"{prefix}-{yy}-{mm}-{number}"
 
 # Travel Request workflow: Employee submits -> Director verifies -> CFO approves
 # (no Journal Entry here; that only happens when the Travel Claim is approved).
@@ -62,6 +92,9 @@ def is_cfo(user=None):
 
 
 class TravelAuthorization(Document):
+	def autoname(self):
+		autoname_by_cost_center_prefix(self, "TA", "TA")
+
 	def onload(self):
 		self.filter_rows_for_traveller()
 

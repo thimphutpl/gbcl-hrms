@@ -166,7 +166,7 @@ override_doctype_class = {
 fixtures = [
 	{
 		"dt": "Custom Field",
-		"filters": [["name", "in", ["Company-travel_journal_account"]]],
+		"filters": [["name", "in", ["Company-travel_journal_account", "Cost Center-prefix"]]],
 	},
 	{
 		"dt": "Translation",
