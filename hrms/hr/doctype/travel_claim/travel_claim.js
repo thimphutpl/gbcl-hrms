@@ -27,6 +27,12 @@ frappe.ui.form.on("Travel Claim", {
 		});
 		if (!grid.open_grid_row &&
 			!(grid.wrapper && grid.wrapper[0] && $.contains(grid.wrapper[0], document.activeElement))) {
+			// setup_visible_columns() memoizes this.visible_columns and skips
+			// recomputing it once already set, so changing in_list_view above
+			// has no visible effect until that cache is cleared -- unlike a
+			// pure label change (relabel_misc_amount), which needs no recompute
+			// since it doesn't affect which columns are included at all
+			grid.visible_columns = [];
 			grid.refresh();
 		}
 	},
