@@ -179,6 +179,11 @@ class TravelClaim(Document):
 	def calculate_amount(self):
 		total, advance_amount = 0.0, 0.0
 		for d in self.get("items"):
+			# a claim only ever has one claimant, but the itinerary grid still
+			# shows a Traveller column for visual parity with the Travel
+			# Request; keep it in sync with the claim's own employee rather
+			# than relying on whatever was copied in at creation time
+			d.traveller_name = self.employee_name
 			total += flt(d.amount)
 		self.total_amount = flt(total)
 

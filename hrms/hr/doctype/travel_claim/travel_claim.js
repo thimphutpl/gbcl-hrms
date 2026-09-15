@@ -12,6 +12,30 @@ frappe.ui.form.on("Travel Claim", {
 		frm.events.calc_misc_total(frm);
 		frm.events.relabel_misc_amount(frm);
 		frm.events.simplify_travellers_grid(frm);
+		frm.events.fill_itinerary_traveller_name(frm);
+	},
+
+	// Travel Claim Item has no party/traveller field of its own -- a claim
+	// only ever has one claimant -- but the Travel Itinerary grid shows a
+	// Traveller column for visual parity with the Travel Request. The server
+	// keeps this in sync on every save (calculate_amount), but that never
+	// runs again for an already-approved claim, so fill it in for display
+	// here too -- purely in-memory, no save, so it works even for older
+	// approved claims saved before this field existed.
+	fill_itinerary_traveller_name: function (frm) {
+		if (!frm.doc.employee_name) return;
+		let changed = false;
+		(frm.doc.items || []).forEach((row) => {
+			if (row.traveller_name !== frm.doc.employee_name) {
+				row.traveller_name = frm.doc.employee_name;
+				changed = true;
+			}
+		});
+		let grid = frm.fields_dict["items"] && frm.fields_dict["items"].grid;
+		if (changed && grid && !grid.open_grid_row &&
+			!(grid.wrapper && grid.wrapper[0] && $.contains(grid.wrapper[0], document.activeElement))) {
+			grid.refresh();
+		}
 	},
 
 	// Travellers Item is shared with Travel Authorization, where Designation /

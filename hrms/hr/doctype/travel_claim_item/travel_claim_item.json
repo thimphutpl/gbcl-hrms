@@ -7,6 +7,7 @@
  "engine": "InnoDB",
  "field_order": [
   "travel_itinerary_section",
+  "traveller_name",
   "from_date",
   "travel_from",
   "column_break_cwok",
@@ -30,6 +31,14 @@
   "amount"
  ],
  "fields": [
+  {
+   "columns": 2,
+   "fieldname": "traveller_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Traveller",
+   "read_only": 1
+  },
   {
    "columns": 2,
    "fieldname": "from_date",
@@ -166,7 +175,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-09-14 17:00:00.000000",
+ "modified": "2026-09-15 10:00:00.000000",
  "modified_by": "Administrator",
  "module": "HR",
  "name": "Travel Claim Item",
