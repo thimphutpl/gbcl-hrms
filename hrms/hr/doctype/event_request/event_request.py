@@ -9,7 +9,43 @@ from frappe.utils import flt
 
 import erpnext
 
-from hrms.hr.utils import set_employee_name, share_doc_with_approver, validate_active_employee
+from hrms.hr.utils import set_employee_name, validate_active_employee
+
+# Event Request workflow (see the "Event Request" Workflow doc): Employee
+# submits -> Director verifies -> CFO approves. This mirrors Travel
+# Authorization exactly: no Journal Entry here -- that only happens when
+# the resulting Event Claim is approved. Director has full oversight of
+# every request regardless of status; CFO only needs to see requests
+# currently awaiting their own approval.
+PRIVILEGED_ROLES = {"System Manager", "HR Manager", "HR User"}
+DIRECTOR_ROLE = "Director"
+CFO_ROLE = "CFO"
+CFO_PENDING_STATE = "Waiting Approval"
+
+
+def is_privileged(user=None):
+	user = user or frappe.session.user
+	return user == "Administrator" or bool(PRIVILEGED_ROLES & set(frappe.get_roles(user)))
+
+
+def can_view_all_events(user=None):
+	"""Privileged HR roles plus Director may see every event request, any status."""
+	user = user or frappe.session.user
+	if user == "Administrator":
+		return True
+	return bool((PRIVILEGED_ROLES | {DIRECTOR_ROLE}) & set(frappe.get_roles(user)))
+
+
+def is_cfo(user=None):
+	user = user or frappe.session.user
+	return CFO_ROLE in frappe.get_roles(user)
+
+
+def get_session_employee(user=None):
+	user = user or frappe.session.user
+	if not user or user == "Guest":
+		return None
+	return frappe.db.get_value("Employee", {"user_id": user}, "name")
 
 
 class EventRequest(Document):
@@ -27,9 +63,7 @@ class EventRequest(Document):
 		self.warn_if_requester_not_authorized()
 		self.set_currency()
 		self.calculate_total_estimated_cost()
-		self.set_default_accounts()
-		if self.docstatus == 0:
-			self.status = "Draft"
+		self.set_status()
 
 	def warn_if_requester_not_authorized(self):
 		"""Advisory only — flags requesters below Head of Department level."""
@@ -45,62 +79,8 @@ class EventRequest(Document):
 				indicator="orange",
 			)
 
-	def on_update(self):
-		if self.event_approver:
-			share_doc_with_approver(self, self.event_approver)
-
-	# Workflow: Employee submits -> Director verifies -> CFO approves (posts JE)
-	VERIFIER_ROLES = {"System Manager", "HR Manager", "Director"}
-	APPROVER_ROLES = {"System Manager", "HR Manager", "CFO"}
-
-	def on_submit(self):
-		# Filed for Director verification — no ledger impact yet.
-		self.db_set("status", "Pending Verification")
-
 	def on_cancel(self):
-		self.cancel_journal_entry()
-		self.db_set("status", "Cancelled")
-
-	def has_any_role(self, roles):
-		return bool(roles & set(frappe.get_roles()))
-
-	@frappe.whitelist()
-	def verify(self):
-		"""Director step: move a submitted request on to CFO approval."""
-		if not self.has_any_role(self.VERIFIER_ROLES):
-			frappe.throw(_("Only a Director can verify an Event Request."))
-		if self.docstatus != 1 or self.status != "Pending Verification":
-			frappe.throw(_("This Event Request is not pending verification."))
-
-		self.db_set("status", "Pending Approval")
-		self.add_comment("Comment", _("Verified by {0}").format(frappe.session.user))
-
-	@frappe.whitelist()
-	def approve(self):
-		"""CFO step: approve a verified request and post the Journal Entry."""
-		if not self.has_any_role(self.APPROVER_ROLES):
-			frappe.throw(_("Only the CFO can approve an Event Request."))
-		if self.docstatus != 1 or self.status != "Pending Approval":
-			frappe.throw(
-				_("This Event Request is not pending approval — it must be verified by a Director first.")
-			)
-
-		# Post the Journal Entry now (once) — this is the only place it is created.
-		if not self.journal_entry:
-			self.make_journal_entry()
-		self.db_set("status", "Approved")
-
-	@frappe.whitelist()
-	def reject(self, reason=None):
-		"""Director or CFO can reject while the request is pending."""
-		if not self.has_any_role(self.VERIFIER_ROLES | self.APPROVER_ROLES):
-			frappe.throw(_("You are not permitted to reject Event Requests."))
-		if self.docstatus != 1 or self.status not in ("Pending Verification", "Pending Approval"):
-			frappe.throw(_("This Event Request cannot be rejected at its current stage."))
-
-		self.db_set("status", "Rejected")
-		if reason:
-			self.add_comment("Comment", _("Rejected: {0}").format(reason))
+		self.set_status(update=True)
 
 	def set_currency(self):
 		if not self.currency:
@@ -124,142 +104,77 @@ class EventRequest(Document):
 
 		self.round_floats_in(self, ["estimated_event_cost", "total_estimated_cost"])
 
-	def set_default_accounts(self):
-		"""Pre-fill accounting fields from Company defaults when left blank."""
-		if not self.company:
-			return
+	def set_status(self, update=False):
+		status_map = {0: "Draft", 1: "Submitted", 2: "Cancelled"}
+		status = status_map.get(self.docstatus, "Draft")
 
-		defaults = frappe.get_cached_value(
-			"Company",
-			self.company,
-			["default_expense_account", "default_expense_claim_payable_account", "cost_center"],
-			as_dict=True,
-		)
-		if not self.expense_account:
-			self.expense_account = defaults.get("default_expense_account")
-		if not self.payable_account:
-			self.payable_account = defaults.get("default_expense_claim_payable_account")
-		if not self.cost_center:
-			self.cost_center = defaults.get("cost_center")
+		if update:
+			self.db_set("status", status)
+		else:
+			self.status = status
 
-	def make_journal_entry(self):
-		"""Post an accrual Journal Entry for the approved estimated event cost."""
-		amount = flt(self.total_estimated_cost)
-		if amount <= 0:
-			return
+	def has_event_claim(self) -> dict[str, bool]:
+		filters = {"docstatus": ("<", 2), "event_request": self.name}
 
-		if self.journal_entry:
-			# already posted (e.g. on re-submit of an amended doc handled separately)
-			return
+		employee = get_session_employee()
+		if employee and employee == self.employee:
+			filters["employee"] = employee
 
-		if not self.expense_account or not self.payable_account:
-			frappe.throw(
-				_("Expense Account and Payable / Accrued Account are required to post the Journal Entry.")
-			)
+		return {"has_event_claim": bool(frappe.db.exists("Event Claim", filters))}
 
-		cost_center = self.cost_center or erpnext.get_default_cost_center(self.company)
-		remark = _("Event Request {0}: {1}").format(self.name, self.event_title or "")
 
-		je = frappe.new_doc("Journal Entry")
-		je.voucher_type = "Journal Entry"
-		je.company = self.company
-		je.posting_date = self.posting_date
-		je.user_remark = remark
-		je.bill_no = self.approved_ref_number or self.name
-		self.set_je_naming_series(je)
-
-		# Some localizations make "branch" mandatory on Journal Entry
-		if je.meta.get_field("branch") and not je.get("branch"):
-			je.branch = frappe.db.get_value("Employee", self.employee, "branch") or frappe.db.get_value(
-				"Branch", {}, "name"
-			)
-
-		je.append(
-			"accounts",
-			{
-				"account": self.expense_account,
-				"debit_in_account_currency": amount,
-				"cost_center": cost_center,
-				"project": self.project,
-				"user_remark": remark,
-			},
-		)
-		je.append(
-			"accounts",
-			{
-				"account": self.payable_account,
-				"credit_in_account_currency": amount,
-				"cost_center": cost_center,
-				"project": self.project,
-				"user_remark": remark,
-			},
-		)
-
-		je.flags.ignore_permissions = True
-		je.insert()
-		je.submit()
-
-		self.db_set("journal_entry", je.name)
-		frappe.msgprint(
-			_("Journal Entry {0} created for this Event Request.").format(
-				frappe.utils.get_link_to_form("Journal Entry", je.name)
-			),
-			alert=True,
-		)
-
-	def set_je_naming_series(self, je):
-		"""Handle sites that customize Journal Entry naming.
-
-		On standard ERPNext, Journal Entry auto-picks its default series. Some
-		localizations (e.g. GMC) drive naming from a "Journal Entry Series" master
-		and require ``naming_series`` to be set explicitly, else naming fails.
-		"""
-		field = je.meta.get_field("naming_series")
-		if not field or je.get("naming_series"):
-			return
-
-		if frappe.db.exists("DocType", "Journal Entry Series"):
-			series = frappe.db.get_value(
-				"Journal Entry Series",
-				{"entry_type": "Journal Entry", "enabled": 1, "journal_entry_series": "Journal Voucher"},
-				"name",
-			) or frappe.db.get_value(
-				"Journal Entry Series", {"entry_type": "Journal Entry", "enabled": 1}, "name"
-			)
-			if series:
-				je.naming_series = series
-		elif field.options:
-			je.naming_series = field.options.split("\n")[0]
-
-	def cancel_journal_entry(self):
-		if not self.journal_entry:
-			return
-
-		if not frappe.db.exists("Journal Entry", self.journal_entry):
-			return
-
-		je = frappe.get_doc("Journal Entry", self.journal_entry)
-		if je.docstatus == 1:
-			je.flags.ignore_permissions = True
-			je.cancel()
-
-		self.db_set("journal_entry", None)
+@frappe.whitelist()
+def has_event_claim(dt, dn) -> dict[str, bool]:
+	"""Loaded fresh from the DB by (dt, dn) — see the matching comment on
+	Travel Authorization's has_travel_claim for why."""
+	doc = frappe.get_doc(dt, dn)
+	doc.check_permission("read")
+	return doc.has_event_claim()
 
 
 def get_permission_query_conditions(user=None):
 	"""List-view visibility.
 
 	- Admin / HR / Director: see everything.
-	- CFO: only requests that need CFO approval (status = Pending Approval).
+	- CFO: only requests currently awaiting CFO approval.
 	- Everyone else (requesters): only their own requests.
 	"""
 	user = user or frappe.session.user
-	roles = set(frappe.get_roles(user))
+	if can_view_all_events(user):
+		return None
 
-	if roles & {"System Manager", "HR Manager", "HR User", "Director"}:
-		return ""
+	conditions = ["`tabEvent Request`.owner = {0}".format(frappe.db.escape(user))]
 
-	if "CFO" in roles:
-		return "`tabEvent Request`.`status` = 'Pending Approval'"
+	if is_cfo(user):
+		conditions.append(
+			"`tabEvent Request`.workflow_state = {0}".format(frappe.db.escape(CFO_PENDING_STATE))
+		)
 
-	return "`tabEvent Request`.`owner` = {0}".format(frappe.db.escape(user))
+	employee = get_session_employee(user)
+	if employee:
+		conditions.append("`tabEvent Request`.employee = {0}".format(frappe.db.escape(employee)))
+
+	return "({0})".format(" or ".join(conditions))
+
+
+def has_permission(doc, ptype, user):
+	if can_view_all_events(user):
+		return True
+	if not doc or doc.is_new():
+		return True
+	if user == doc.owner:
+		return True
+
+	if is_cfo(user):
+		# Only narrow READ-family visibility to the pending stage. Do NOT gate
+		# write/submit this way — see the matching comment on Travel
+		# Authorization's has_permission for why.
+		if ptype in ("read", "print", "email", "select"):
+			return doc.workflow_state == CFO_PENDING_STATE
+		return True
+
+	employee = get_session_employee(user)
+	if employee and employee == doc.employee:
+		return True
+
+	return None
