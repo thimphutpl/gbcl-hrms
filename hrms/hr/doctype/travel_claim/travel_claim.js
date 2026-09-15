@@ -11,7 +11,6 @@ frappe.ui.form.on("Travel Claim", {
 		refresh_html(frm);
 		frm.events.calc_misc_total(frm);
 		frm.events.relabel_misc_amount(frm);
-		frm.events.simplify_travellers_grid(frm);
 		frm.events.fill_itinerary_traveller_name(frm);
 	},
 
@@ -34,29 +33,6 @@ frappe.ui.form.on("Travel Claim", {
 		let grid = frm.fields_dict["items"] && frm.fields_dict["items"].grid;
 		if (changed && grid && !grid.open_grid_row &&
 			!(grid.wrapper && grid.wrapper[0] && $.contains(grid.wrapper[0], document.activeElement))) {
-			grid.refresh();
-		}
-	},
-
-	// Travellers Item is shared with Travel Authorization, where Designation /
-	// CID-Passport / Bhutan Visa / Passport docs are actually entered -- don't
-	// touch the doctype itself, just hide those columns from THIS form's grid
-	// so the Claim view only shows who the row belongs to
-	simplify_travellers_grid: function (frm) {
-		let grid = frm.fields_dict["travellers_detail"] && frm.fields_dict["travellers_detail"].grid;
-		if (!grid) return;
-		["designation", "passport_no", "bhutan_visa_application_forms", "passport_copy",
-			"passport_sized_photograph", "any_other_relevant_supporting_documents"].forEach((fn) => {
-			grid.update_docfield_property(fn, "in_list_view", 0);
-		});
-		if (!grid.open_grid_row &&
-			!(grid.wrapper && grid.wrapper[0] && $.contains(grid.wrapper[0], document.activeElement))) {
-			// setup_visible_columns() memoizes this.visible_columns and skips
-			// recomputing it once already set, so changing in_list_view above
-			// has no visible effect until that cache is cleared -- unlike a
-			// pure label change (relabel_misc_amount), which needs no recompute
-			// since it doesn't affect which columns are included at all
-			grid.visible_columns = [];
 			grid.refresh();
 		}
 	},
